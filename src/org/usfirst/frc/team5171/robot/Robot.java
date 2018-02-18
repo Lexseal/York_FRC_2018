@@ -6,9 +6,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 
+import static org.usfirst.frc.team5171.robot.Macro.*;
 import org.usfirst.frc.team5171.robot.commands.*;
 import org.usfirst.frc.team5171.robot.subsystems.*;
-import static org.usfirst.frc.team5171.robot.subsystems.Macro.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -18,23 +18,19 @@ import static org.usfirst.frc.team5171.robot.subsystems.Macro.*;
  * directory.
  */
 public class Robot extends IterativeRobot {
-
-	public static final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
 	public static OI oi;
 
 	AutoMode autoMode;
-	SendableChooser<AutoMode> chooser = new SendableChooser<AutoMode>();
+	SendableChooser<String> priorityChooser = new SendableChooser<String>();
+	SendableChooser<String> positionChooser = new SendableChooser<String>();
 	
 	int portlist[] = {LEFT_X, THROTTLE, LEFT_UP, RIGHT_UP, TURN, RIGHT_Y};
-	Controller joystick = new Controller(0, portlist, 5, 18, 100, 2);
+	Controller joystick = new Controller(0, portlist, 3, 18, 200, 2);
 	
 	int leftMotors[] = {1, 3};
 	int rightMotors[] = {2, 4};
-	Drive drive = new Drive(leftMotors, rightMotors, 100);
+	Drive drive = new Drive(leftMotors, rightMotors, 200);
 	
-	boolean prevDis = true;
-	
-	//Vision stream = new Vision();
 	StreamingServer stream = new StreamingServer();
 
 	/**
@@ -44,9 +40,17 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void robotInit() {
 		oi = new OI();
-		chooser.addDefault("", new AutoTest(drive));
-	    SmartDashboard.putData("Autonomous Selector", chooser);
-	    stream.start();
+		priorityChooser.addDefault("Switch First", switchFirst);
+		priorityChooser.addObject("Scale First", scaleFirst);
+		
+		positionChooser.addDefault("Left Start", leftStart);
+		positionChooser.addObject("Middle Start", middleStart);
+		positionChooser.addObject("Middle Wait", middleWait);
+		positionChooser.addObject("Right Start", rightStart);
+		
+	    SmartDashboard.putData("Priority Chooser", priorityChooser);
+	    SmartDashboard.putData("Position Chooser", positionChooser);
+	    //stream.start();
 	}
 
 	/**
@@ -76,11 +80,50 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		autoMode = chooser.getSelected();
+		String priority = priorityChooser.getSelected();
+		String position = positionChooser.getSelected();
+		
+		if (priority == switchFirst) {
+			switch (position) {
+				case leftStart:
+					
+				case middleStart:
+					
+				case middleWait:
+					
+				case rightStart:
+					
+			}
+		} else if (priority == scaleFirst) {
+			switch (position) {
+				case leftStart:
+					
+				case middleStart:
+					
+				case middleWait:
+					
+				case rightStart:
+					
+			}
+		}
+		
+		DriverStation station = DriverStation.getInstance();
+		String platePlacement = station.getGameSpecificMessage();
+		
+		int[] platePos = {0, 0};
+		if (platePlacement.length() > 0) {
+			for (int i = 0; i < 2; i++) {
+				if (platePlacement.charAt(i) == 'L') {
+					platePos[i] = -1;
+				} else {
+					platePos[i] = 1;
+				}
+			}
+		}
 		
 		// schedule the autonomous command (example)
 		if (autoMode != null) {
-			autoMode.initialize();
+			autoMode.initialize(platePos);
 			autoMode.execute();
 		}
 	}
@@ -116,8 +159,6 @@ public class Robot extends IterativeRobot {
 			drive.setPIDConstants(kP, kI, kD);
 		}
 		
-		SmartDashboard.putString(SDTHROTTLE, ""+(-joystick.get(THROTTLE)));
-		SmartDashboard.putString(SDTURN, ""+joystick.get(TURN));
 		drive.updateVelocity(-joystick.get(THROTTLE), joystick.get(TURN));
 	}
 

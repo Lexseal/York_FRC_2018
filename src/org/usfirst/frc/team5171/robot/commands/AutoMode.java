@@ -1,11 +1,13 @@
 package org.usfirst.frc.team5171.robot.commands;
 
 public class AutoMode {
+	int position;
+	
 	public AutoMode() {
 	}
 
 	// Called just before this Command runs the first time
-	public void initialize() {
+	public void initialize(int[] platesAssignment) {
 	}
 
 	// Called repeatedly when this Command is scheduled to run

@@ -1,4 +1,4 @@
-package org.usfirst.frc.team5171.robot.subsystems;
+package org.usfirst.frc.team5171.robot;
 
 public class Macro {
 	public static final boolean betaFeature = false;
@@ -15,15 +15,15 @@ public class Macro {
 	public static final int encoderLeft = 0;
 	public static final int encoderRight = 2;
 	
-	public static final double constkP = 1.8;
-	public static final double constkI = 1;
+	public static final double constkP = 2.2;
+	public static final double constkI = 2;
 	public static final double constkD = 0.24;
 	
 	public static final double joystickMultiplier = 360; //Robot rotation per second.
 	
 	public static final double wheelMultiplier = 4096;
 	
-	public static final double maxSpeed = 4; // m/s
+	public static final double maxSpeed = 5; // m/s
 	public static final double wheelCircumfrence = 0.47878; // meters
 	public static final double maxRevPer100ms = maxSpeed/wheelCircumfrence/10; // revs
 	
@@ -36,6 +36,13 @@ public class Macro {
 	public static final String SDkP = "DB/String 5";
 	public static final String SDkI = "DB/String 6";
 	public static final String SDkD = "DB/String 7";
-	public static final String SDTHROTTLE = "DB/String 8";
-	public static final String SDTURN = "DB/String 9";
+	public static final String SDLMotor = "DB/String 8";
+	public static final String SDRMotor = "DB/String 9";
+	
+	public static final String switchFirst = "switchFirst";
+	public static final String scaleFirst = "scaleFirst";
+	public static final String leftStart = "L";
+	public static final String middleStart = "M";
+	public static final String middleWait = "MW";
+	public static final String rightStart = "R";
 }

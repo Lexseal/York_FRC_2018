@@ -1,8 +1,8 @@
 package org.usfirst.frc.team5171.robot.subsystems;
 
-import edu.wpi.first.wpilibj.Joystick;
+import static org.usfirst.frc.team5171.robot.Macro.*;
 
-import static org.usfirst.frc.team5171.robot.subsystems.Macro.*;
+import edu.wpi.first.wpilibj.Joystick;
 
 public class Controller extends Thread {
 	int[] portList;
