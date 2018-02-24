@@ -26,9 +26,9 @@ public class Controller extends Thread {
 	
 	public double get(int _port) {
 		if (inputList[_port] < 0) {
-			return -Math.pow(inputList[_port], expo);
+			return -Math.pow(Math.abs(inputList[_port]), expo);
 		}
-		return Math.pow(inputList[_port], expo);
+		return Math.pow(Math.abs(inputList[_port]), expo);
 	}
 	
 	public void run() {

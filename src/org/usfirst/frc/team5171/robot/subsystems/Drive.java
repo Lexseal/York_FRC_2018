@@ -51,14 +51,19 @@ public class Drive extends Thread {
 		
 		for (int i = 0; i < _left.length+_right.length; i++) {
 			motor[i].setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 5, 10); // modify the encoder refresh rate
+			
 			motor[i].configNominalOutputForward(0, 10);
 			motor[i].configNominalOutputReverse(0, 10);
 			motor[i].configPeakOutputForward(1, 10);
 			motor[i].configPeakOutputReverse(-1, 10);
+			
 			motor[i].config_kF(0, 0, 10);
 			motor[i].config_kP(0, 0.24, 10);
 			motor[i].config_kI(0, 0, 10);
 			motor[i].config_kD(0, 0.005, 10);
+			
+			motor[i].configOpenloopRamp(0.1, 10);
+			motor[i].configClosedloopRamp(0.1, 10);
 		}
 		
 		imu = new ADIS16448_IMU();
@@ -70,9 +75,14 @@ public class Drive extends Thread {
 		y = 0;
 	}
 	
+	private double getCurPos() {
+		double encoderReadOut = (motor[0].getSelectedSensorPosition(0)+motor[2].getSelectedSensorPosition(0))/2;
+		return (encoderReadOut/wheelMultiplier*wheelCircumfrence);
+	}
+	
 	private void updateMotor(double leftOutput, double rightOutput, ControlMode mode) {
-		//SmartDashboard.putString(SDLMOTOR, ""+leftOutput);
-		//SmartDashboard.putString(SDLMOTOR, ""+rightOutput);
+		SmartDashboard.putString(SDLMotor, ""+leftOutput);
+		SmartDashboard.putString(SDRMotor, ""+rightOutput);
 		if (mode == ControlMode.Velocity) {
 			motor[0].set(mode, leftOutput*maxRevPer100ms*wheelMultiplier);
 			motor[1].set(ControlMode.Follower, motor[0].getDeviceID());
@@ -84,11 +94,11 @@ public class Drive extends Thread {
 	}
 	
 	public void updateVelocity(double _throttle, double _turn) {
-		throttle = 0.8*_throttle;
+		throttle = _throttle;
 		if (Math.abs(_turn) > 0) {
-			desiredAng = desiredAng+_turn/freq*joystickMultiplier;
+			desiredAng = desiredAng+_turn*joystickMultiplier;
 		} else if (Math.abs(lastTurn)>0 && _turn==0) {
-			desiredAng = imu.getAngleZ()+imu.getRate()/freq*10;
+			desiredAng = imu.getAngleZ()+imu.getRate()/5;
 			I = 0;
 		} else if (_throttle == 0 && _turn == 0 && lastTurn == 0) {
 			desiredAng = imu.getAngleZ();
@@ -105,13 +115,13 @@ public class Drive extends Thread {
 		}
 		
 		//achieve displacement
-		curPos = (motor[0].getSelectedSensorPosition(0)+motor[2].getSelectedSensorPosition(0))/2;
-		curPos = curPos/wheelMultiplier*wheelCircumfrence;
+		/*curPos = (motor[0].getSelectedSensorPosition(0)+motor[2].getSelectedSensorPosition(0))/2;
+		curPos = curPos/wheelMultiplier*wheelCircumfrence;*/
 		desPos = curPos+_displacement;
 		startTime = System.currentTimeMillis();
 		while (station.isAutonomous()) {
-			curPos = (motor[0].getSelectedSensorPosition(0)+motor[2].getSelectedSensorPosition(0))/2;
-			curPos = curPos/wheelMultiplier*wheelCircumfrence;
+			/*curPos = (motor[0].getSelectedSensorPosition(0)+motor[2].getSelectedSensorPosition(0))/2;
+			curPos = curPos/wheelMultiplier*wheelCircumfrence;*/
 			double error = desPos-curPos;
 			
 			if (Math.abs(error) < 0.05 /*|| (System.currentTimeMillis()-startTime)>_displacement*2000*/) {
@@ -160,7 +170,7 @@ public class Drive extends Thread {
 	private double updatePID(double error, double omega, double deltaTime) {
 		double kP = 0, kI = 0, kD = 0;
 		double P = 0, D = 0;
-		if (testMode) {
+		if (driveTestMode) {
 			kP = testKP;
 			kI = testKI;
 			kD = testKD;
@@ -175,10 +185,10 @@ public class Drive extends Thread {
 		P = kP * error;
 		
 		I = I + kI * error*deltaTime/1000;
-		if (I > 10) {
-			I = 10;
-		} else if (I < -10) {
-			I = -10;
+		if (I > 12) {
+			I = 12;
+		} else if (I < -12) {
+			I = -12;
 		}
 		
 		D = (-kD) * omega;
@@ -194,6 +204,14 @@ public class Drive extends Thread {
 	
 	public boolean zeroSensor() {
 		imu.reset();
+		
+		try {
+			Thread.sleep(10);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		curAng = imu.getAngleZ();
 		desiredAng = curAng;
 		x = 0;
@@ -203,7 +221,7 @@ public class Drive extends Thread {
 	
 	public void run() {
 		curAng = imu.getAngleZ();
-		curPos = (motor[0].getSelectedSensorPosition(0)+motor[2].getSelectedSensorPosition(0))/2;
+		curPos = getCurPos();
 		
 		desiredAng = curAng;
 		
@@ -213,7 +231,7 @@ public class Drive extends Thread {
 		
 		while (true) {
 			try {
-				sleep((long)(1000/freq));
+				Thread.sleep((long)(1000/freq));
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -221,8 +239,7 @@ public class Drive extends Thread {
 			curAng = imu.getAngleZ();
 			SmartDashboard.putString(SDcurAng, ""+curAng);
 			
-			curPos = (motor[0].getSelectedSensorPosition(0)+motor[2].getSelectedSensorPosition(0))/2;
-			curPos = curPos/wheelMultiplier*wheelCircumfrence;
+			curPos = getCurPos();
 			SmartDashboard.putString(SDcurPos, ""+curPos);
 			//SmartDashboard.putString(SDkP, ""+motor[0].getSelectedSensorVelocity(0));
 			//SmartDashboard.putString(SDkI, ""+motor[2].getSelectedSensorVelocity(0));
@@ -234,7 +251,7 @@ public class Drive extends Thread {
 			} else if (error < -180) {
 				error += 360;
 			}
-			//SmartDashboard.putString(SDAngErr, ""+error);
+			SmartDashboard.putString(SDAngErr, ""+error);
 
 			double currentTime = System.currentTimeMillis();
 			double deltaTime = currentTime - lastTime; //Get deltaTime
@@ -243,11 +260,12 @@ public class Drive extends Thread {
 			angSpeed = imu.getRate(); //Get omega
 
 			double output = updatePID(error, angSpeed, deltaTime);
-			if (output > 60) {
-				output = 60;
-			} else if (output < -60) {
-				output = -60;
+			if (output > 80) {
+				output = 80;
+			} else if (output < -80) {
+				output = -80;
 			}
+			
 			updateMotor(throttle+output/100, throttle-output/100, ControlMode.Velocity);
 		}
 	}

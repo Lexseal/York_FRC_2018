@@ -25,11 +25,17 @@ public class Robot extends IterativeRobot {
 	SendableChooser<String> positionChooser = new SendableChooser<String>();
 	
 	int portlist[] = {LEFT_X, THROTTLE, LEFT_UP, RIGHT_UP, TURN, RIGHT_Y};
-	Controller joystick = new Controller(0, portlist, 3, 18, 200, 2);
+	Controller driveStick = new Controller(0, portlist, 3, 18, 200, 1.5);
+	Controller controlStick = new Controller(1, portlist, 3, 18, 200, 1.5);
 	
 	int leftMotors[] = {1, 3};
 	int rightMotors[] = {2, 4};
 	Drive drive = new Drive(leftMotors, rightMotors, 200);
+	
+	CubeLifter lifter = new CubeLifter(5, 200);
+	
+	int[] intakeMotors = {6, 7};
+	Intake intake = new Intake(intakeMotors, 200);
 	
 	StreamingServer stream = new StreamingServer();
 
@@ -50,6 +56,9 @@ public class Robot extends IterativeRobot {
 		
 	    SmartDashboard.putData("Priority Chooser", priorityChooser);
 	    SmartDashboard.putData("Position Chooser", positionChooser);
+	    
+	    intake.start();
+	    lifter.start();
 	    //stream.start();
 	}
 
@@ -137,9 +146,13 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void teleopInit() {
-		if (!joystick.isAlive()) {
-			joystick.start();
+		if (!driveStick.isAlive()) {
+			driveStick.start();
 		}
+		if (!controlStick.isAlive()) {
+			controlStick.start();
+		}
+		
 		if (!drive.isAlive()) {
 			drive.start();
 		}
@@ -152,14 +165,26 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
-		if (testMode) { //Set PID constants in test mode
+		if (driveTestMode) { //Set PID constants in test mode
 			double kP = Double.parseDouble(SmartDashboard.getString(SDkP, ""));
 			double kI = Double.parseDouble(SmartDashboard.getString(SDkI, ""));
 			double kD = Double.parseDouble(SmartDashboard.getString(SDkD, ""));
 			drive.setPIDConstants(kP, kI, kD);
 		}
+		if (liftTestMode) {
+			double kP = Double.parseDouble(SmartDashboard.getString(SDkP, ""));
+			double kI = Double.parseDouble(SmartDashboard.getString(SDkI, ""));
+			double kD = Double.parseDouble(SmartDashboard.getString(SDkD, ""));
+			lifter.setPIDConstants(kP, kI, kD);
+		}
 		
-		drive.updateVelocity(-joystick.get(THROTTLE), joystick.get(TURN));
+		drive.updateVelocity(-driveStick.get(THROTTLE), driveStick.get(TURN));
+		
+		lifter.updateDisplacement(controlStick.get(LEFT_UP)-controlStick.get(RIGHT_UP));
+		//lifter.updateSpeed(controlStick.get(LEFT_UP)-controlStick.get(RIGHT_UP));
+		
+		double[] speed = {-driveStick.get(LEFT_UP)-controlStick.get(LEFT_X), driveStick.get(RIGHT_UP)-controlStick.get(TURN)};
+		intake.updateSpeed(speed);
 	}
 
 	/**
