@@ -3,7 +3,7 @@ package org.usfirst.frc.team5171.robot;
 public class Macro {
 	public static final boolean betaFeature = false;
 	public static final boolean driveTestMode = false;
-	public static final boolean liftTestMode = true;
+	public static final boolean liftTestMode = false;
 	
 	public static final int LEFT_X = 0;
 	public static final int THROTTLE = 1;
@@ -26,18 +26,21 @@ public class Macro {
 	public static final double constkI = 2;
 	public static final double constkD = 0.24;
 	
-	public static final double joystickMultiplier = 3.6; //Robot rotation per time unit.
+	public static final double joystickMultiplier = 3.2; //Robot rotation per time unit.
 	
 	public static final double wheelMultiplier = 4096;
 	
 	public static final double maxSpeed = 4; // m/s
 	public static final double wheelCircumfrence = 0.47878; // meters
+	public static final double revPer100ms = 1.0/wheelCircumfrence/10;
 	public static final double maxRevPer100ms = maxSpeed/wheelCircumfrence/10; // revs
 	
 	public static final double liftHeightPerRev = 12.55; // cm/rev
-	public static final double liftkP = 0.01;
-	public static final double liftkI = 0.01;
-	public static final double liftkD = 0.01;
+	public static final double liftkP = 0.1;
+	public static final double liftkI = 0.0;
+	public static final double liftkD = 0.0;
+	
+	public static final double recordTime = 15;
 	
 	public static final String SDcurAng = "DB/String 0";
 	public static final String SDdesAng = "DB/String 1";

@@ -26,8 +26,16 @@ public class Intake extends Thread {
 	}
 	
 	public void updateSpeed(double[] speed) {
-		motor[0].set(ControlMode.PercentOutput, speed[0]/2);
-		motor[1].set(ControlMode.PercentOutput, speed[1]/2);
+		if (speed[0] >= 0) {
+			motor[0].set(ControlMode.PercentOutput, speed[0]);
+		} else if (speed[0] < 0) {
+			motor[0].set(ControlMode.PercentOutput, speed[0]/2);
+		}
+		if (speed[1] >= 0) {
+			motor[1].set(ControlMode.PercentOutput, speed[1]/2);
+		} else if (speed[1] < 0) {
+			motor[1].set(ControlMode.PercentOutput, speed[1]);
+		}
 	}
 	
 	public void spitOut(double distance) {

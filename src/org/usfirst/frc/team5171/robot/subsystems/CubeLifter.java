@@ -7,21 +7,27 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
+import edu.wpi.first.wpilibj.DigitalInput;
+
 public class CubeLifter extends Thread {
 	int port;
 	int freq;
+	DigitalInput liftSwitch;
 	TalonSRX motor;
 	double curPos, desiredPos;
 	double lastTime;
 	double I;
 	double testKP = 0, testKI = 0, testKD = 0;
 	
-	public CubeLifter(int _port, int _freq) {
+	public CubeLifter(int _port, int _switchPin, int _freq) {
 		port = _port;
 		freq = _freq;
+		
+		liftSwitch = new DigitalInput(_switchPin);
+		
 		motor = new TalonSRX(port);
 		
-		motor.setInverted(false);
+		motor.setInverted(true);
 		motor.setSensorPhase(true);
 		
 		motor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
@@ -43,12 +49,15 @@ public class CubeLifter extends Thread {
 		zeroSensor();
 	}
 	
+	private boolean switchPressed() {
+		return liftSwitch.get();
+	}
+	
 	private double getCurPos() {
 		return motor.getSelectedSensorPosition(0)/wheelMultiplier*liftHeightPerRev;
 	}
 	
 	public void updateSpeed(double speed) {
-		
 		motor.set(ControlMode.PercentOutput, speed);
 	}
 	
@@ -136,8 +145,18 @@ public class CubeLifter extends Thread {
 			
 			double output = updatePID(error, speed, deltaTime);
 			
-			System.out.println(desiredPos+"   "+curPos+"   "+motor.getSelectedSensorPosition(0) + "   " +output);
-			updateSpeed(output);
+			if (switchPressed()) {
+				if (output < 0) {
+					updateSpeed(0);
+				} else {
+					updateSpeed(output);
+				}
+				zeroSensor();
+			} else {
+				updateSpeed(output);
+			}
+			
+			//System.out.println(desiredPos+"   "+curPos+"   "+motor.getSelectedSensorPosition(0) + "   " +output);
 		}
 	}
 }

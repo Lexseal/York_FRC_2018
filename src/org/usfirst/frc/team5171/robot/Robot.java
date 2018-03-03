@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 
 import static org.usfirst.frc.team5171.robot.Macro.*;
+
 import org.usfirst.frc.team5171.robot.commands.*;
 import org.usfirst.frc.team5171.robot.subsystems.*;
 
@@ -19,29 +20,35 @@ import org.usfirst.frc.team5171.robot.subsystems.*;
  */
 public class Robot extends IterativeRobot {
 	public static OI oi;
-
+	
+	AutoMode[] modes = new AutoMode[8];
 	AutoMode autoMode;
 	SendableChooser<String> priorityChooser = new SendableChooser<String>();
 	SendableChooser<String> positionChooser = new SendableChooser<String>();
-	
-	int portlist[] = {LEFT_X, THROTTLE, LEFT_UP, RIGHT_UP, TURN, RIGHT_Y};
+
+	int portlist[] = { LEFT_X, THROTTLE, LEFT_UP, RIGHT_UP, TURN, RIGHT_Y };
 	Controller driveStick = new Controller(0, portlist, 3, 18, 200, 1.5);
 	Controller controlStick = new Controller(1, portlist, 3, 18, 200, 1.5);
-	
-	int leftMotors[] = {1, 3};
-	int rightMotors[] = {2, 4};
+
+	int leftMotors[] = { 1, 3 };
+	int rightMotors[] = { 2, 4 };
 	Drive drive = new Drive(leftMotors, rightMotors, 200);
-	
-	CubeLifter lifter = new CubeLifter(5, 200);
-	
-	int[] intakeMotors = {6, 7};
+
+	CubeLifter lifter = new CubeLifter(6, 9, 200);
+
+	int[] intakeMotors = { 7, 8 };
 	Intake intake = new Intake(intakeMotors, 200);
-	
+
 	StreamingServer stream = new StreamingServer();
+	
+	Record recorder;
+	Thread recordingThread = new Thread();
+	
+	/**/
 
 	/**
-	 * This function is run when the robot is first started up and should be
-	 * used for any initialization code.
+	 * This function is run when the robot is first started up and should be used
+	 * for any initialization code.
 	 */
 	@Override
 	public void robotInit() {
@@ -53,19 +60,28 @@ public class Robot extends IterativeRobot {
 		positionChooser.addObject("Middle Start", middleStart);
 		positionChooser.addObject("Middle Wait", middleWait);
 		positionChooser.addObject("Right Start", rightStart);
+
+		SmartDashboard.putData("Priority Chooser", priorityChooser);
+		SmartDashboard.putData("Position Chooser", positionChooser);
 		
-	    SmartDashboard.putData("Priority Chooser", priorityChooser);
-	    SmartDashboard.putData("Position Chooser", positionChooser);
-	    
-	    intake.start();
-	    lifter.start();
-	    //stream.start();
+		modes[0] = new AutoTest(drive, 100);
+		/*modes[1] = new (, 100);
+		modes[1] = new (, 100);
+		modes[1] = new (, 100);
+		modes[1] = new (, 100);
+		modes[1] = new (, 100);
+		modes[1] = new (, 100);
+		modes[1] = new (, 100);*/
+
+		intake.start();
+		lifter.start();
+		// stream.start();
 	}
 
 	/**
-	 * This function is called once each time the robot enters Disabled mode.
-	 * You can use it to reset any subsystem information you want to clear when
-	 * the robot is disabled.
+	 * This function is called once each time the robot enters Disabled mode. You
+	 * can use it to reset any subsystem information you want to clear when the
+	 * robot is disabled.
 	 */
 	@Override
 	public void disabledInit() {
@@ -78,48 +94,48 @@ public class Robot extends IterativeRobot {
 
 	/**
 	 * This autonomous (along with the chooser code above) shows how to select
-	 * between different autonomous modes using the dashboard. The sendable
-	 * chooser code works with the Java SmartDashboard. If you prefer the
-	 * LabVIEW Dashboard, remove all of the chooser code and uncomment the
-	 * getString code to get the auto name from the text box below the Gyro
+	 * between different autonomous modes using the dashboard. The sendable chooser
+	 * code works with the Java SmartDashboard. If you prefer the LabVIEW Dashboard,
+	 * remove all of the chooser code and uncomment the getString code to get the
+	 * auto name from the text box below the Gyro
 	 *
 	 * You can add additional auto modes by adding additional commands to the
-	 * chooser code above (like the commented example) or additional comparisons
-	 * to the switch structure below with additional strings & commands.
+	 * chooser code above (like the commented example) or additional comparisons to
+	 * the switch structure below with additional strings & commands.
 	 */
 	@Override
 	public void autonomousInit() {
 		String priority = priorityChooser.getSelected();
 		String position = positionChooser.getSelected();
-		
+
 		if (priority == switchFirst) {
 			switch (position) {
-				case leftStart:
-					
-				case middleStart:
-					
-				case middleWait:
-					
-				case rightStart:
-					
+			case leftStart:
+				autoMode = modes[0];
+			case middleStart:
+
+			case middleWait:
+
+			case rightStart:
+
 			}
 		} else if (priority == scaleFirst) {
 			switch (position) {
-				case leftStart:
-					
-				case middleStart:
-					
-				case middleWait:
-					
-				case rightStart:
-					
+			case leftStart:
+
+			case middleStart:
+
+			case middleWait:
+
+			case rightStart:
+
 			}
 		}
-		
+
 		DriverStation station = DriverStation.getInstance();
 		String platePlacement = station.getGameSpecificMessage();
-		
-		int[] platePos = {0, 0};
+
+		int[] platePos = { 0, 0 };
 		if (platePlacement.length() > 0) {
 			for (int i = 0; i < 2; i++) {
 				if (platePlacement.charAt(i) == 'L') {
@@ -129,11 +145,12 @@ public class Robot extends IterativeRobot {
 				}
 			}
 		}
-		
+
 		// schedule the autonomous command (example)
 		if (autoMode != null) {
 			autoMode.initialize(platePos);
 			autoMode.execute();
+			autoMode.isFinished();
 		}
 	}
 
@@ -152,11 +169,13 @@ public class Robot extends IterativeRobot {
 		if (!controlStick.isAlive()) {
 			controlStick.start();
 		}
-		
 		if (!drive.isAlive()) {
 			drive.start();
 		}
 		drive.zeroSensor();
+		
+		String file = new String("testAuto");
+		recorder = new Record(file, drive, 50);
 	}
 
 	/**
@@ -165,7 +184,7 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
-		if (driveTestMode) { //Set PID constants in test mode
+		if (driveTestMode) { // Set PID constants in test mode
 			double kP = Double.parseDouble(SmartDashboard.getString(SDkP, ""));
 			double kI = Double.parseDouble(SmartDashboard.getString(SDkI, ""));
 			double kD = Double.parseDouble(SmartDashboard.getString(SDkD, ""));
@@ -178,12 +197,20 @@ public class Robot extends IterativeRobot {
 			lifter.setPIDConstants(kP, kI, kD);
 		}
 		
+		if(!recordingThread.isAlive() && SmartDashboard.getBoolean("DB/Button 0", false)) {
+			recordingThread = new Thread(recorder);
+			recordingThread.start();
+		}
+		/*if (!recorder.isAlive() && SmartDashboard.getBoolean("DB/Button 0", false)) {
+			recorder.start();
+		}*/
+
 		drive.updateVelocity(-driveStick.get(THROTTLE), driveStick.get(TURN));
-		
-		lifter.updateDisplacement(controlStick.get(LEFT_UP)-controlStick.get(RIGHT_UP));
+		lifter.updateDisplacement(controlStick.get(LEFT_UP) - controlStick.get(RIGHT_UP));
 		//lifter.updateSpeed(controlStick.get(LEFT_UP)-controlStick.get(RIGHT_UP));
-		
-		double[] speed = {-driveStick.get(LEFT_UP)-controlStick.get(LEFT_X), driveStick.get(RIGHT_UP)-controlStick.get(TURN)};
+
+		double[] speed = { -driveStick.get(LEFT_UP) - controlStick.get(LEFT_X),
+				driveStick.get(RIGHT_UP) - controlStick.get(TURN) };
 		intake.updateSpeed(speed);
 	}
 
