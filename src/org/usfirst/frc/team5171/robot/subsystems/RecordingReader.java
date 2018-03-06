@@ -60,6 +60,10 @@ public class RecordingReader {
 		System.out.println(System.currentTimeMillis()/1000.0-startTime);
 	}
 
+	public void resetCutoff() {
+		cutoffIdx = 0;
+	}
+	
 	public double[] getVector(double targetTime) {
 		int targetIdx = cutoffIdx;
 		for (int i = cutoffIdx; i < vectors.size(); i++) {

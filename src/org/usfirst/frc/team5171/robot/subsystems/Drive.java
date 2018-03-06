@@ -64,8 +64,8 @@ public class Drive extends Thread {
 			motor[i].config_kI(0, 0, 10);
 			motor[i].config_kD(0, 0, 10);
 			
-			motor[i].configOpenloopRamp(0.1, 10);
-			motor[i].configClosedloopRamp(0.1, 10);
+			motor[i].configOpenloopRamp(0.25, 10);
+			motor[i].configClosedloopRamp(0.25, 10);
 		}
 		
 		imu = new ADIS16448_IMU();
@@ -271,21 +271,26 @@ public class Drive extends Thread {
 			
 			if (isFollowMode) {
 				double speedErr = desSpeed-curSpeed;
-				double outputFromSpeed = desSpeed*0.6+speedErr*0.4;
-				//double outputFromSpeed = 0;
-				System.out.println(speedErr);
+				double outputFromSpeed = desSpeed*0.58+speedErr*0.4;
+				//outputFromSpeed = 0;
 				
 				double posErr = desPos-curPos;
 				double outputFromPos = posErr*0.4;
-				
-				double angErr = desAng-curAng;
-				double outputFromAng = angErr*0.0;
+				//outputFromPos = 0;
 				
 				double omegaErr = desAngSpeed-curAngSpeed;
-				double outputFromOmegaErr = omegaErr*0.0;
+				double outputFromOmega = desAngSpeed*0.0052+omegaErr*0.0017;
+				//outputFromOmega = 0;
 				
-				double outputL = outputFromSpeed+outputFromPos+outputFromAng+outputFromOmegaErr;
-				double outputR = outputFromSpeed+outputFromPos-outputFromAng-outputFromOmegaErr;
+				double angErr = desAng-curAng;
+				//double kP = Double.parseDouble(SmartDashboard.getString(SDkP, ""));
+				double outputFromAng = angErr*0.017;
+				//outputFromAng = 0;
+				
+				System.out.println(angErr);
+				
+				double outputL = outputFromSpeed+outputFromPos+outputFromAng+outputFromOmega;
+				double outputR = outputFromSpeed+outputFromPos-outputFromAng-outputFromOmega;
 				
 				updateMotor(outputL, outputR, ControlMode.Velocity);
 				//System.out.println(outputL+" "+outputR);

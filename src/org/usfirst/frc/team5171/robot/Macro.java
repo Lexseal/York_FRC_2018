@@ -13,6 +13,13 @@ public class Macro {
 	public static final int RIGHT_Y = 5;
 	public static final int MAX = 16;
 	
+	public static final int A = 1;
+	public static final int B = 2;
+	public static final int X = 3;
+	public static final int Y = 4;
+	public static final int LB = 4;
+	public static final int RB = 5;
+	
 	public static final int INTAKE_POS_BUTTON = 0;
 	public static final int SWITCH_POS_BUTTON = 0;
 	public static final int SCALE_POS_BUTTON = 0;
@@ -40,7 +47,7 @@ public class Macro {
 	public static final double liftkI = 0.0;
 	public static final double liftkD = 0.0;
 	
-	public static final double recordTime = 15;
+	public static final double recordTime = 30;
 	
 	public static final String SDcurAng = "DB/String 0";
 	public static final String SDdesAng = "DB/String 1";

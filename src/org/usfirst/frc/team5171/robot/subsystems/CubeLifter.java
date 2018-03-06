@@ -4,7 +4,7 @@ import static org.usfirst.frc.team5171.robot.Macro.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
+//import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -14,7 +14,7 @@ public class CubeLifter extends Thread {
 	int freq;
 	DigitalInput liftSwitch;
 	TalonSRX motor;
-	double curPos, desiredPos;
+	double curPos, desPos;
 	double lastTime;
 	double I;
 	double testKP = 0, testKI = 0, testKD = 0;
@@ -31,7 +31,7 @@ public class CubeLifter extends Thread {
 		motor.setSensorPhase(true);
 		
 		motor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
-		motor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 5, 10);
+		//motor.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 5, 10);
 		
 		motor.configNominalOutputForward(0, 10);
 		motor.configNominalOutputReverse(0, 10);
@@ -43,8 +43,8 @@ public class CubeLifter extends Thread {
 		motor.config_kI(0, 0, 10);
 		motor.config_kD(0, 0.005, 10);
 		
-		motor.configOpenloopRamp(0.1, 10);
-		motor.configClosedloopRamp(0.1, 10);
+		motor.configOpenloopRamp(0.2, 10);
+		motor.configClosedloopRamp(0.2, 10);
 		
 		zeroSensor();
 	}
@@ -63,9 +63,9 @@ public class CubeLifter extends Thread {
 	
 	public void updatePosition(double position) {
 		curPos = getCurPos();
-		desiredPos = position;
-		if (desiredPos < 0) {
-			desiredPos = 0;
+		desPos = position;
+		if (desPos < 0) {
+			desPos = 0;
 		}
 	}
 	
@@ -76,9 +76,11 @@ public class CubeLifter extends Thread {
 	}
 	
 	public void updateDisplacement(double displacement) {
-		desiredPos = desiredPos+displacement;
-		if (desiredPos < 0) {
-			desiredPos = 0;
+		desPos = desPos+displacement*1.5;
+		if (desPos < 0) {
+			desPos = 0;
+		} else if (desPos > 231) {
+			desPos = 231;
 		}
 	}
 	
@@ -124,6 +126,10 @@ public class CubeLifter extends Thread {
 		return output;
 	}
 	
+	public double getDesPos() {
+		return desPos;
+	}
+	
 	public void run() {
 		lastTime = System.currentTimeMillis();
 		
@@ -137,7 +143,7 @@ public class CubeLifter extends Thread {
 			curPos = getCurPos();
 			//System.out.println(motor.getSelectedSensorPosition(0));
 			
-			double error = desiredPos-curPos;
+			double error = desPos-curPos;
 			double speed = motor.getSelectedSensorVelocity(0);
 			double currentTime = System.currentTimeMillis();
 			double deltaTime = currentTime - lastTime; //Get deltaTime
@@ -156,7 +162,7 @@ public class CubeLifter extends Thread {
 				updateSpeed(output);
 			}
 			
-			//System.out.println(desiredPos+"   "+curPos+"   "+motor.getSelectedSensorPosition(0) + "   " +output);
+			System.out.println(desPos+"   "+curPos+"   "+motor.getSelectedSensorPosition(0) + "   " +output);
 		}
 	}
 }

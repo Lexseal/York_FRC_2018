@@ -9,6 +9,7 @@ public class Intake extends Thread {
 	int[] port;
 	int freq;
 	VictorSPX[] motor = new VictorSPX[2];
+	double[] speed = new double[2];
 	boolean newCommand = false;
 	double spitOutDist = 0;
 	
@@ -25,22 +26,29 @@ public class Intake extends Thread {
 		}
 	}
 	
-	public void updateSpeed(double[] speed) {
-		if (speed[0] >= 0) {
-			motor[0].set(ControlMode.PercentOutput, speed[0]);
-		} else if (speed[0] < 0) {
-			motor[0].set(ControlMode.PercentOutput, speed[0]/2);
+	public void updateSpeed(double[] _speed) {
+		if (_speed[0] >= 0) {
+			speed[0] = _speed[0];
+			
+		} else {
+			speed[0] = _speed[0]/2;
 		}
-		if (speed[1] >= 0) {
-			motor[1].set(ControlMode.PercentOutput, speed[1]/2);
-		} else if (speed[1] < 0) {
-			motor[1].set(ControlMode.PercentOutput, speed[1]);
+		if (_speed[1] >= 0) {
+			speed[1] = _speed[1]/2;
+		} else {
+			speed[1] = _speed[1];
 		}
+		motor[0].set(ControlMode.PercentOutput, speed[0]);
+		motor[1].set(ControlMode.PercentOutput, speed[1]);
 	}
 	
 	public void spitOut(double distance) {
 		spitOutDist = distance;
 		newCommand = true;
+	}
+	
+	public double[] getSpeed() {
+		return speed;
 	}
 	
 	public void run() {

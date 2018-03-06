@@ -6,6 +6,9 @@ import static org.usfirst.frc.team5171.robot.Macro.*;
 
 public class AutoTest extends AutoMode {
 	//int position = 0;
+	Drive drive;
+	CubeLifter lifter;
+	Intake intake;
 	double freq;
 	DriverStation station;
 	RecordingReader reader;
@@ -19,10 +22,11 @@ public class AutoTest extends AutoMode {
 		return getCurTime()-startTime;
 	}
 	
-	Drive drive;
-	public AutoTest(Drive _drive, double _freq) {
+	public AutoTest(Drive _drive, CubeLifter _lifter, Intake _intake, double _freq) {
 		freq = _freq;
 		drive = _drive;
+		lifter = _lifter;
+		intake = _intake;
 		station = DriverStation.getInstance();
 		reader = new RecordingReader("testAuto");
 	}
@@ -33,13 +37,13 @@ public class AutoTest extends AutoMode {
 			drive.start();
 		}
 		drive.zeroSensor();
-		
-		startTime = getRunTime();
 	}
 
 	// Called repeatedly when this Command is scheduled to run
 	public void execute() {
+		startTime = getRunTime();
 		double runTime = getRunTime();
+		reader.resetCutoff();
 		while (runTime <= recordTime && station.isAutonomous() && station.isEnabled()) {
 			try {
 				Thread.sleep((long)(1000/freq));
@@ -56,10 +60,16 @@ public class AutoTest extends AutoMode {
 			//System.out.println("");
 			
 			double angle = vector[1];
-			double omega = vector[3];
+			double omega = (vector[2]+vector[3])/2;
 			double position = vector[4];
 			double speed = vector[5];
 			drive.follow(angle, omega, position, speed);
+			
+			double liftPos = vector[6];
+			lifter.updatePosition(liftPos);
+			
+			double[] intakeSpeed = {vector[7], vector[8]}; 
+			intake.updateSpeed(intakeSpeed);
 		}
 	}
 

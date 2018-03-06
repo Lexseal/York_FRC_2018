@@ -26,9 +26,10 @@ public class Robot extends IterativeRobot {
 	SendableChooser<String> priorityChooser = new SendableChooser<String>();
 	SendableChooser<String> positionChooser = new SendableChooser<String>();
 
-	int portlist[] = { LEFT_X, THROTTLE, LEFT_UP, RIGHT_UP, TURN, RIGHT_Y };
-	Controller driveStick = new Controller(0, portlist, 3, 18, 200, 1.5);
-	Controller controlStick = new Controller(1, portlist, 3, 18, 200, 1.5);
+	int axisList[] = { LEFT_X, THROTTLE, LEFT_UP, RIGHT_UP, TURN, RIGHT_Y };
+	int buttonList[] = { A, B, X, Y, LB, RB };
+	Controller driveStick = new Controller(0, axisList, buttonList, 3, 18, 200, 1.6);
+	Controller controlStick = new Controller(1, axisList, buttonList, 3, 20, 200, 1.6);
 
 	int leftMotors[] = { 1, 3 };
 	int rightMotors[] = { 2, 4 };
@@ -38,6 +39,8 @@ public class Robot extends IterativeRobot {
 
 	int[] intakeMotors = { 7, 8 };
 	Intake intake = new Intake(intakeMotors, 200);
+	
+	Climber climber = new Climber(5);
 
 	StreamingServer stream = new StreamingServer();
 	
@@ -64,7 +67,7 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putData("Priority Chooser", priorityChooser);
 		SmartDashboard.putData("Position Chooser", positionChooser);
 		
-		modes[0] = new AutoTest(drive, 100);
+		modes[0] = new AutoTest(drive, lifter, intake, 100);
 		/*modes[1] = new (, 100);
 		modes[1] = new (, 100);
 		modes[1] = new (, 100);
@@ -148,6 +151,7 @@ public class Robot extends IterativeRobot {
 
 		// schedule the autonomous command (example)
 		if (autoMode != null) {
+			System.out.println("in");
 			autoMode.initialize(platePos);
 			autoMode.execute();
 			autoMode.isFinished();
@@ -175,7 +179,7 @@ public class Robot extends IterativeRobot {
 		drive.zeroSensor();
 		
 		String file = new String("testAuto");
-		recorder = new Record(file, drive, 50);
+		recorder = new Record(file, drive, lifter, intake, 50);
 	}
 
 	/**
@@ -201,17 +205,16 @@ public class Robot extends IterativeRobot {
 			recordingThread = new Thread(recorder);
 			recordingThread.start();
 		}
-		/*if (!recorder.isAlive() && SmartDashboard.getBoolean("DB/Button 0", false)) {
-			recorder.start();
-		}*/
 
-		drive.updateVelocity(-driveStick.get(THROTTLE), driveStick.get(TURN));
-		lifter.updateDisplacement(controlStick.get(LEFT_UP) - controlStick.get(RIGHT_UP));
+		drive.updateVelocity(-driveStick.getAxis(THROTTLE), driveStick.getAxis(TURN));
+		lifter.updateDisplacement(controlStick.getAxis(LEFT_UP) - controlStick.getAxis(RIGHT_UP));
 		//lifter.updateSpeed(controlStick.get(LEFT_UP)-controlStick.get(RIGHT_UP));
 
-		double[] speed = { -driveStick.get(LEFT_UP) - controlStick.get(LEFT_X),
-				driveStick.get(RIGHT_UP) - controlStick.get(TURN) };
+		double[] speed = { -driveStick.getAxis(LEFT_UP) - controlStick.getAxis(LEFT_X),
+				driveStick.getAxis(RIGHT_UP) - controlStick.getAxis(TURN) };
 		intake.updateSpeed(speed);
+		
+		climber.updateSpeed(controlStick.getAxis(THROTTLE));
 	}
 
 	/**

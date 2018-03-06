@@ -5,30 +5,42 @@ import static org.usfirst.frc.team5171.robot.Macro.*;
 import edu.wpi.first.wpilibj.Joystick;
 
 public class Controller extends Thread {
-	int[] portList;
-	double[] inputList = new double[MAX];
+	int[] axisList;
+	int[] buttonList;
+	double[] axisInput = new double[MAX];
 	double[] lastInput = new double[MAX];
+	boolean[] buttonInput = new boolean[MAX];
 	double deadBand, cutOff, freq, expo;
 	Joystick stick;
 	
-	public Controller(int _joyPort, int _portlist[], double _deadBand, double _cutOff, double _freq, double _expo) {
-		portList = _portlist;
-		for (int i = 0; i < portList.length; i++) {
-			inputList[portList[i]] = 0;
+	public Controller(int _joyPort, int _axisList[], int _buttonList[], double _deadBand, double _cutOff, double _freq, double _expo) {
+		axisList = _axisList;
+		for (int i = 0; i < axisList.length; i++) {
+			axisInput[axisList[i]] = 0;
 		}
-		lastInput = inputList;
+		lastInput = axisInput;
 		deadBand = _deadBand/100;
 		cutOff = _cutOff/100;
-		freq = _freq;
 		expo = _expo;
+		
+		buttonList = _buttonList;
+		for (int i = 0; i < buttonList.length; i++) {
+			buttonInput[buttonList[i]] = false;
+		}
+		
+		freq = _freq;
 		stick = new Joystick(_joyPort);
 	}
 	
-	public double get(int _port) {
-		if (inputList[_port] < 0) {
-			return -Math.pow(Math.abs(inputList[_port]), expo);
+	public double getAxis(int _port) {
+		if (axisInput[_port] < 0) {
+			return -Math.pow(Math.abs(axisInput[_port]), expo);
 		}
-		return Math.pow(Math.abs(inputList[_port]), expo);
+		return Math.pow(Math.abs(axisInput[_port]), expo);
+	}
+	
+	public boolean getButton(int _port) {
+		return buttonInput[_port];
 	}
 	
 	public void run() {
@@ -38,17 +50,23 @@ public class Controller extends Thread {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			for (int i = 0; i < portList.length; i++) {
-				int curPort = portList[i];
-				inputList[curPort] = stick.getRawAxis(curPort);
-				if (Math.abs(inputList[curPort]-lastInput[curPort])/(1/freq)<=deadBand) {
-					inputList[curPort] = lastInput[curPort];
+			
+			for (int i = 0; i < axisList.length; i++) {
+				int curPort = axisList[i];
+				axisInput[curPort] = stick.getRawAxis(curPort);
+				if (Math.abs(axisInput[curPort]-lastInput[curPort])/(1/freq)<=deadBand) {
+					axisInput[curPort] = lastInput[curPort];
 				} else {
-					inputList[curPort] = (inputList[curPort]+lastInput[curPort])/2;
+					axisInput[curPort] = (axisInput[curPort]+lastInput[curPort])/2;
 				}
-				if (Math.abs(inputList[curPort]) < cutOff) {
-					inputList[curPort] = 0;
+				if (Math.abs(axisInput[curPort]) < cutOff) {
+					axisInput[curPort] = 0;
 				}
+			}
+			
+			for (int i = 0; i < buttonList.length; i++) {
+				int curPort = buttonList[i];
+				buttonInput[curPort] = stick.getRawButton(curPort);
 			}
 		}
 	}
