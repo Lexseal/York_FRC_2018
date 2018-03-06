@@ -90,7 +90,6 @@ public class CubeLifter extends Thread {
 		try {
 			Thread.sleep(10);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -137,7 +136,6 @@ public class CubeLifter extends Thread {
 			try {
 				Thread.sleep(1000/freq);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			curPos = getCurPos();

@@ -113,7 +113,7 @@ public class Drive extends Thread {
 		lastTurn = _turn;
 	}
 	
-	public void updatePosition(double _angle, double _displacement) {
+	public void updateDisplacement(double _angle, double _displacement) {
 		//achieve angle
 		desAng = curAng + _angle;
 		System.out.println("ang and disp" + _angle +" "+ _displacement + " desiAng " + desAng);
@@ -155,7 +155,7 @@ public class Drive extends Thread {
 		}
 	}
 	
-	public void updateCoordinate(double _x, double _y) {
+	public void updatePosition(double _x, double _y) {
 		double dx = _x-x;
 		double dy = _y-y;
 		double theta = -((Math.atan2(dy, dx))*(180/3.1416)-90);
@@ -165,7 +165,7 @@ public class Drive extends Thread {
 		x = _x;
 		y = _y;
 		System.out.println("dTheta" + dTheta +" "+ displacement);
-		updatePosition(dTheta, displacement);
+		updateDisplacement(dTheta, displacement);
 	}
 	
 	public void followFinished() {
@@ -229,7 +229,6 @@ public class Drive extends Thread {
 		try {
 			Thread.sleep(10);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

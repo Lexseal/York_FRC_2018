@@ -26,28 +26,26 @@ public class Robot extends IterativeRobot {
 	SendableChooser<String> priorityChooser = new SendableChooser<String>();
 	SendableChooser<String> positionChooser = new SendableChooser<String>();
 
-	int axisList[] = { LEFT_X, THROTTLE, LEFT_UP, RIGHT_UP, TURN, RIGHT_Y };
-	int buttonList[] = { A, B, X, Y, LB, RB };
-	Controller driveStick = new Controller(0, axisList, buttonList, 3, 18, 200, 1.6);
-	Controller controlStick = new Controller(1, axisList, buttonList, 3, 20, 200, 1.6);
+	int axisList[] = { LEFT_X, THROTTLE, LEFT_UP, RIGHT_UP, TURN, RIGHT_Y }; //the list of axis you are interested to track
+	int buttonList[] = { A, B, X, Y, LB, RB }; //the list of buttons you are interested to track
+	Controller driveStick = new Controller(0, axisList, buttonList, 1, 18, 200, 1.6); //driving xbox controller with port 0, 1% deadband and 18% cutoff running at 200Hz. The return value is x^1.6
+	Controller controlStick = new Controller(1, axisList, buttonList, 1, 20, 200, 1.6); //secondary xbox controller with port 0, 1% deadband and 20% cutoff running at 200Hz. The return value is x^1.6
 
 	int leftMotors[] = { 1, 3 };
-	int rightMotors[] = { 2, 4 };
-	Drive drive = new Drive(leftMotors, rightMotors, 200);
+	int rightMotors[] = { 2, 4 }; //motor CAN IDs
+	Drive drive = new Drive(leftMotors, rightMotors, 200); //200Hz
 
-	CubeLifter lifter = new CubeLifter(6, 9, 200);
+	CubeLifter lifter = new CubeLifter(6, 9, 200); //lift with motor 6, limit switch 9 at 200Hz
 
 	int[] intakeMotors = { 7, 8 };
 	Intake intake = new Intake(intakeMotors, 200);
 	
 	Climber climber = new Climber(5);
 
-	StreamingServer stream = new StreamingServer();
+	StreamingServer stream = new StreamingServer(); //camera streaming
 	
 	Record recorder;
 	Thread recordingThread = new Thread();
-	
-	/**/
 
 	/**
 	 * This function is run when the robot is first started up and should be used
@@ -74,11 +72,11 @@ public class Robot extends IterativeRobot {
 		modes[1] = new (, 100);
 		modes[1] = new (, 100);
 		modes[1] = new (, 100);
-		modes[1] = new (, 100);*/
+		modes[1] = new (, 100);*/ //initialize all 8 auto modes here
 
 		intake.start();
-		lifter.start();
-		// stream.start();
+		lifter.start(); //start both intake and lift service at robot init
+		//stream.start();
 	}
 
 	/**
@@ -116,24 +114,24 @@ public class Robot extends IterativeRobot {
 			case leftStart:
 				autoMode = modes[0];
 			case middleStart:
-
+				autoMode = modes[1];
 			case middleWait:
-
+				autoMode = modes[2];
 			case rightStart:
-
+				autoMode = modes[3];
 			}
 		} else if (priority == scaleFirst) {
 			switch (position) {
 			case leftStart:
-
+				autoMode = modes[4];
 			case middleStart:
-
+				autoMode = modes[5];
 			case middleWait:
-
+				autoMode = modes[6];
 			case rightStart:
-
+				autoMode = modes[7];
 			}
-		}
+		} //get the desired auto mode
 
 		DriverStation station = DriverStation.getInstance();
 		String platePlacement = station.getGameSpecificMessage();
@@ -147,11 +145,10 @@ public class Robot extends IterativeRobot {
 					platePos[i] = 1;
 				}
 			}
-		}
+		} //get the position of plates. {1, 0} means switch on our side but scale not
 
 		// schedule the autonomous command (example)
 		if (autoMode != null) {
-			System.out.println("in");
 			autoMode.initialize(platePos);
 			autoMode.execute();
 			autoMode.isFinished();
@@ -178,8 +175,8 @@ public class Robot extends IterativeRobot {
 		}
 		drive.zeroSensor();
 		
-		String file = new String("testAuto");
-		recorder = new Record(file, drive, lifter, intake, 50);
+		String file = new String("testAuto"); //recording file name
+		recorder = new Record(file, drive, lifter, intake, 60); //initialize recorder with drive, lift, and intake infomation at 60Hz
 	}
 
 	/**
@@ -204,15 +201,16 @@ public class Robot extends IterativeRobot {
 		if(!recordingThread.isAlive() && SmartDashboard.getBoolean("DB/Button 0", false)) {
 			recordingThread = new Thread(recorder);
 			recordingThread.start();
-		}
+		} //start recording if the smartdashboard button 0 is pressed
 
 		drive.updateVelocity(-driveStick.getAxis(THROTTLE), driveStick.getAxis(TURN));
+		
 		lifter.updateDisplacement(controlStick.getAxis(LEFT_UP) - controlStick.getAxis(RIGHT_UP));
 		//lifter.updateSpeed(controlStick.get(LEFT_UP)-controlStick.get(RIGHT_UP));
 
-		double[] speed = { -driveStick.getAxis(LEFT_UP) - controlStick.getAxis(LEFT_X),
+		double[] intakeSpeed = { -driveStick.getAxis(LEFT_UP) - controlStick.getAxis(LEFT_X),
 				driveStick.getAxis(RIGHT_UP) - controlStick.getAxis(TURN) };
-		intake.updateSpeed(speed);
+		intake.updateSpeed(intakeSpeed);
 		
 		climber.updateSpeed(controlStick.getAxis(THROTTLE));
 	}

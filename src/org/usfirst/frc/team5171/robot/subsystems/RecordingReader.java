@@ -25,7 +25,6 @@ public class RecordingReader {
 		try {
 			file = new FileReader(pathToFile);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -46,7 +45,6 @@ public class RecordingReader {
 				}
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		/*for (int i = 0; i < vectors.size(); i++) {

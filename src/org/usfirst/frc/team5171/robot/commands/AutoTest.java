@@ -48,7 +48,6 @@ public class AutoTest extends AutoMode {
 			try {
 				Thread.sleep((long)(1000/freq));
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
