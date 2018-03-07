@@ -8,22 +8,26 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 
 public class CubeLifter extends Thread {
 	int port;
 	int freq;
+	boolean goingToBottom;
 	DigitalInput liftSwitch;
 	TalonSRX motor;
 	double curPos, desPos;
 	double lastTime;
 	double I;
 	double testKP = 0, testKI = 0, testKD = 0;
+	DriverStation station;
 	
 	public CubeLifter(int _port, int _switchPin, int _freq) {
 		port = _port;
 		freq = _freq;
-		
+		goingToBottom = false;
 		liftSwitch = new DigitalInput(_switchPin);
+		station = DriverStation.getInstance();
 		
 		motor = new TalonSRX(port);
 		
@@ -86,6 +90,7 @@ public class CubeLifter extends Thread {
 	
 	public boolean zeroSensor() {
 		motor.setSelectedSensorPosition(0, 0, 10);
+		desPos = 0;
 		
 		try {
 			Thread.sleep(10);
@@ -129,6 +134,13 @@ public class CubeLifter extends Thread {
 		return desPos;
 	}
 	
+	public void updateZeroButton(boolean buttonValue) {
+		if (buttonValue) {
+			goingToBottom = true;
+			System.out.println("uZB true");
+		}
+	}
+	
 	public void run() {
 		lastTime = System.currentTimeMillis();
 		
@@ -149,6 +161,14 @@ public class CubeLifter extends Thread {
 			
 			double output = updatePID(error, speed, deltaTime);
 			
+			if (!station.isEnabled()) {
+				desPos = curPos;
+			}
+			
+			if (goingToBottom) {
+				output = -0.20;
+			}
+			
 			if (switchPressed()) {
 				if (output < 0) {
 					updateSpeed(0);
@@ -156,6 +176,7 @@ public class CubeLifter extends Thread {
 					updateSpeed(output);
 				}
 				zeroSensor();
+				goingToBottom = false;
 			} else {
 				updateSpeed(output);
 			}

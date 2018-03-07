@@ -65,7 +65,7 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putData("Priority Chooser", priorityChooser);
 		SmartDashboard.putData("Position Chooser", positionChooser);
 		
-		modes[0] = new AutoTest(drive, lifter, intake, 100);
+		//modes[0] = new AutoTest(drive, lifter, intake, 100);
 		/*modes[1] = new (, 100);
 		modes[1] = new (, 100);
 		modes[1] = new (, 100);
@@ -184,6 +184,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
+		
 		Scheduler.getInstance().run();
 		if (driveTestMode) { // Set PID constants in test mode
 			double kP = Double.parseDouble(SmartDashboard.getString(SDkP, ""));
@@ -208,6 +209,7 @@ public class Robot extends IterativeRobot {
 		lifter.updateDisplacement(controlStick.getAxis(LEFT_UP) - controlStick.getAxis(RIGHT_UP));
 		//lifter.updateSpeed(controlStick.get(LEFT_UP)-controlStick.get(RIGHT_UP));
 
+		lifter.updateZeroButton(controlStick.getButton(A));
 		double[] intakeSpeed = { -driveStick.getAxis(LEFT_UP) - controlStick.getAxis(LEFT_X),
 				driveStick.getAxis(RIGHT_UP) - controlStick.getAxis(TURN) };
 		intake.updateSpeed(intakeSpeed);
