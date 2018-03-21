@@ -28,11 +28,12 @@ public class AutoTest extends AutoMode {
 		lifter = _lifter;
 		intake = _intake;
 		station = DriverStation.getInstance();
-		reader = new RecordingReader("testAuto");
+		reader = new RecordingReader("timeOptimal");
 	}
 
 	// Called just before this Command runs the first time
 	public void initialize(int[] plateAssignment) {
+		System.out.println("initialized");
 		if (!drive.isAlive()) {
 			drive.start();
 		}
@@ -57,17 +58,19 @@ public class AutoTest extends AutoMode {
 				//System.out.print(vector[i]+" ");
 			}
 			//System.out.println("");
-			
+			//vector = {runtime, theta, omega1, omega2, s, v, x, y, lift, lIntake, rIntake}
 			double angle = vector[1];
-			double omega = (vector[2]+vector[3])/2;
-			double position = vector[4];
-			double speed = vector[5];
-			drive.follow(angle, omega, position, speed);
+			double omega = vector[2];
+			double position = vector[3];
+			double speed = vector[4];
+			double x = vector[5];
+			double y = vector[6];
+			drive.follow(angle, omega, position, speed, x, y);
 			
-			double liftPos = vector[6];
+			double liftPos = vector[7];
 			lifter.updatePosition(liftPos);
 			
-			double[] intakeSpeed = {vector[7], vector[8]}; 
+			double[] intakeSpeed = {vector[8], vector[9]}; 
 			intake.updateSpeed(intakeSpeed);
 		}
 	}

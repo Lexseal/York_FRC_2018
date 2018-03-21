@@ -18,6 +18,7 @@ public class CubeLifter extends Thread {
 	double lastTime;
 	double I;
 	double testKP = 0, testKI = 0, testKD = 0;
+	boolean recenterComplete = true;
 	
 	public CubeLifter(int _port, int _switchPin, int _freq) {
 		port = _port;
@@ -58,7 +59,22 @@ public class CubeLifter extends Thread {
 	}
 	
 	public void updateSpeed(double speed) {
+		if (curPos<(secondStageLanding+20) && (curPos>secondStageLanding-5) && speed<0) {
+			if (Math.abs(secondStageLanding-curPos) < 3) {
+				speed = -0.1;
+			} else {
+				speed = -0.2;
+			}
+		} else if (speed < -0.6) {
+			speed = -0.6;
+		}
+		//System.out.println(curPos);
+		
 		motor.set(ControlMode.PercentOutput, speed);
+	}
+	
+	public void liftRecenter() {
+		recenterComplete = false;
 	}
 	
 	public void updatePosition(double position) {
@@ -66,7 +82,23 @@ public class CubeLifter extends Thread {
 		desPos = position;
 		if (desPos < 0) {
 			desPos = 0;
+		} else if (desPos > liftMaxHeight) {
+			desPos = liftMaxHeight;
 		}
+	}
+	
+	public boolean liftIsReady() {
+		if (Math.abs(desPos-curPos) < 3) {
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean protectionMode() {
+		if (getCurPos() > protectedLiftHeight) {
+			return true;
+		}
+		return false;
 	}
 	
 	public void setPIDConstants(double _kP, double _kI, double _kD) {
@@ -79,8 +111,8 @@ public class CubeLifter extends Thread {
 		desPos = desPos+displacement*1.5;
 		if (desPos < 0) {
 			desPos = 0;
-		} else if (desPos > 231) {
-			desPos = 231;
+		} else if (desPos > liftMaxHeight) {
+			desPos = liftMaxHeight;
 		}
 	}
 	
@@ -88,7 +120,7 @@ public class CubeLifter extends Thread {
 		motor.setSelectedSensorPosition(0, 0, 10);
 		
 		try {
-			Thread.sleep(10);
+			Thread.sleep(20);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -149,18 +181,29 @@ public class CubeLifter extends Thread {
 			
 			double output = updatePID(error, speed, deltaTime);
 			
-			if (switchPressed()) {
-				if (output < 0) {
-					updateSpeed(0);
+			if (recenterComplete) {
+				if (switchPressed()) {
+					if (output < 0) {
+						updateSpeed(0);
+					} else {
+						updateSpeed(output);
+					}
+					zeroSensor();
 				} else {
 					updateSpeed(output);
 				}
-				zeroSensor();
 			} else {
-				updateSpeed(output);
+				if (switchPressed()) {
+					recenterComplete = true;
+					zeroSensor();
+					desPos = curPos;
+					updateSpeed(0);
+				} else {
+					updateSpeed(-0.2);
+				}
 			}
 			
-			System.out.println(desPos+"   "+curPos+"   "+motor.getSelectedSensorPosition(0) + "   " +output);
+			//System.out.println(desPos+"   "+curPos+"   "+motor.getSelectedSensorPosition(0) + "   " +output);
 		}
 	}
 }

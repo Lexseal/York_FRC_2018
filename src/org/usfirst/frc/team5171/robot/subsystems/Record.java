@@ -11,7 +11,7 @@ public class Record extends Thread{
 	double startTime;
 	double[] motion = new double[5+3];
 	double[] controlServices = new double[3];
-	double headingBias, positionBias;
+	double headingBias, positionBias, xBias, yBias;
 	Drive drive;
 	CubeLifter lifter;
 	Intake intake;
@@ -42,6 +42,11 @@ public class Record extends Thread{
 	public double[] adjustForBias(double[] motion) {
 		motion[0] -= headingBias;
 		motion[2] -= positionBias;
+		motion[5] -= xBias;
+		motion[6] -= yBias;
+		/*if (motion[4] == 0) {
+			motion[3] = 0;
+		}*/
 		return motion;
 	}
 	
@@ -56,6 +61,8 @@ public class Record extends Thread{
 		motion = drive.getAllSensorInfo();
 		headingBias = motion[0];
 		positionBias = motion[2];
+		xBias = motion[5];
+		yBias = motion[6];
 		
 		startTime = getCurTime();
 		double runTime = getRunTime();
@@ -82,19 +89,23 @@ public class Record extends Thread{
 			controlServices[2] = intakeSpeed[1];
 			
 			try {
-				writer.append(runTime+", ");
-				writer.append(motion[0]+", ");
-				writer.append(motion[1]+", ");
+				writer.append(runTime+", "); //runtime
+				writer.append(motion[0]+", "); //theta
+				writer.append(motion[1]+", "); //gyro omega
 				double deltaTime = runTime-lastTime;
 				lastTime = runTime;
-				writer.append((motion[0]-lastAngle)/deltaTime+", ");
+				writer.append((motion[0]-lastAngle)/deltaTime+", "); //calculated omega
 				lastAngle = motion[0];
-				writer.append(motion[2]+", ");
-				writer.append(motion[3]+", ");
+				writer.append(motion[2]+", "); //s
+				writer.append(motion[3]+", "); //v
+				writer.append(motion[5]+", "); //x
+				writer.append(motion[6]+", "); //y
 				
-				writer.append(controlServices[0]+", ");
-				writer.append(controlServices[1]+", ");
-				writer.append(controlServices[2]+"\n");
+				writer.append(controlServices[0]+", "); //lift height in cm
+				writer.append(controlServices[1]+", "); //left intake speed
+				writer.append(controlServices[2]+"\n"); //right intake speed
+				
+				//writer = {runtime, theta, omega1, omega2, s, v, x, y, lift, lIntake, rIntake}
 				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block

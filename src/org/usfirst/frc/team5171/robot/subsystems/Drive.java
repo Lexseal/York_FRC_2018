@@ -21,15 +21,17 @@ public class Drive extends Thread {
 	ADIS16448_IMU imu;
 	double curAng, desAng, curAngSpeed, desAngSpeed;
 	double curPos, desPos, curSpeed, desSpeed;
-	double throttle;
-	double lastTime;
+	double throttle = 0, lastThrottle = 0;
+	double desX, x, desY, y; //robot position
+	double lastTime, deltaTime;
 	double freq;
-	double x, y; //robot position
 	
 	double testKP = 0, testKI = 0, testKD = 0; //used when test mode enabled
 	double I = 0; //integral term
 	
 	double lastTurn = 0; //register the turn command at last cycle to determine if breaking is needed this cycle
+	
+	double restrictionMultiplier = 1;
 	
 	DriverStation station = DriverStation.getInstance();
 	
@@ -62,10 +64,10 @@ public class Drive extends Thread {
 			motor[i].config_kF(0, 0, 10);
 			motor[i].config_kP(0, 0.24, 10);
 			motor[i].config_kI(0, 0, 10);
-			motor[i].config_kD(0, 0, 10);
+			motor[i].config_kD(0, 0.005, 10);
 			
-			motor[i].configOpenloopRamp(0.25, 10);
-			motor[i].configClosedloopRamp(0.25, 10);
+			motor[i].configOpenloopRamp(0.35, 10);
+			motor[i].configClosedloopRamp(0.35, 10);
 		}
 		
 		imu = new ADIS16448_IMU();
@@ -82,7 +84,14 @@ public class Drive extends Thread {
 		return (encoderReadOut/wheelMultiplier*wheelCircumfrence);
 	}
 	
-	private double getCurSpeed() {
+	private void updateCoordinate() {
+		double dc = curSpeed*deltaTime/1000;
+		x += Math.sin(curAng*3.1415926/180)*dc;
+		y += Math.cos(curAng*3.1415926/180)*dc;
+		//System.out.println(x+", "+y);
+	}
+	
+	public double getCurSpeed() {
 		double encoderReadOut = (motor[0].getSelectedSensorVelocity(0)+motor[2].getSelectedSensorVelocity(0))/2;
 		return (encoderReadOut/wheelMultiplier*wheelCircumfrence)*10;
 	}
@@ -162,8 +171,6 @@ public class Drive extends Thread {
 		double correctAng = (curAng)%360;
 		double dTheta = theta-correctAng;
 		double displacement = Math.hypot(dx, dy);
-		x = _x;
-		y = _y;
 		System.out.println("dTheta" + dTheta +" "+ displacement);
 		updateDisplacement(dTheta, displacement);
 	}
@@ -172,12 +179,14 @@ public class Drive extends Thread {
 		isFollowMode = false;
 	}
 	
-	public void follow(double angle, double omega, double position, double speed) {
+	public void follow(double angle, double omega, double position, double speed, double _x, double _y) {
 		isFollowMode = true;
 		desAngSpeed = omega;
 		desAng = angle;
 		desSpeed = speed;
 		desPos = position;
+		desX = _x;
+		desY = _y;
 	}
 	
 	public void setPIDConstants(double _kP, double _kI, double _kD) {
@@ -239,6 +248,14 @@ public class Drive extends Thread {
 		return true;
 	}
 	
+	public void restrictedAcc() {
+		restrictionMultiplier = 0.3;
+	}
+	
+	public void normalAcc() {
+		restrictionMultiplier = 1;
+	}
+	
 	public void run() {
 		curAng = imu.getAngleZ();
 		curPos = getCurPos();
@@ -265,31 +282,57 @@ public class Drive extends Thread {
 			SmartDashboard.putString(SDcurPos, ""+curSpeed);
 			
 			double currentTime = System.currentTimeMillis();
-			double deltaTime = currentTime - lastTime; //Get deltaTime
+			deltaTime = currentTime - lastTime; //Get deltaTime
 			lastTime = currentTime;
+			
+			updateCoordinate();
 			
 			if (isFollowMode) {
 				double speedErr = desSpeed-curSpeed;
-				double outputFromSpeed = desSpeed*0.58+speedErr*0.4;
+				double outputFromSpeed = desSpeed*0.52+speedErr*0.20;
+				//0.58 0.4
 				//outputFromSpeed = 0;
 				
 				double posErr = desPos-curPos;
-				double outputFromPos = posErr*0.4;
+				double outputFromPos = posErr*0.20;
+				//System.out.println(speedErr+" "+posErr);
+				//0.4
 				//outputFromPos = 0;
 				
+				/*double kP1 = Double.parseDouble(SmartDashboard.getString(SDkP, ""));
+				double kP2 = Double.parseDouble(SmartDashboard.getString(SDkI, ""));
+				double kP3 = Double.parseDouble(SmartDashboard.getString(SDkD, ""));*/
+				
+				double angleCorrection = 180/3.1415925*Math.atan2(desX-x, desY-y)-curAng;
+				double hypoCorrection = Math.hypot(desX-x, desY-y);
+				angleCorrection *= Math.pow(hypoCorrection, 1);
+				if (angleCorrection > 3){
+					angleCorrection = 3;
+				} else if (angleCorrection < -3) {
+					angleCorrection = -3;
+				}
+				if (getCurSpeed() < 0) {
+					angleCorrection *= -1;
+				}
+				System.out.println(angleCorrection);
+				
 				double omegaErr = desAngSpeed-curAngSpeed;
-				double outputFromOmega = desAngSpeed*0.0052+omegaErr*0.0017;
+				//double outputFromOmega = desAngSpeed*0.0052+omegaErr*0.0016;
+				//0.0052 0.0017
 				//outputFromOmega = 0;
 				
 				double angErr = desAng-curAng;
+				//angErr += angleCorrection;
 				//double kP = Double.parseDouble(SmartDashboard.getString(SDkP, ""));
-				double outputFromAng = angErr*0.017;
+				//double outputFromAng = angErr*0.016;
+				//0.0005
 				//outputFromAng = 0;
+				System.out.println(omegaErr+" "+angErr);
 				
-				System.out.println(angErr);
-				
-				double outputL = outputFromSpeed+outputFromPos+outputFromAng+outputFromOmega;
-				double outputR = outputFromSpeed+outputFromPos-outputFromAng-outputFromOmega;
+				//double outputL = outputFromSpeed+outputFromPos+outputFromAng+outputFromOmega;
+				//double outputR = outputFromSpeed+outputFromPos-outputFromAng-outputFromOmega;
+				double outputL = outputFromSpeed+outputFromPos+updatePID(angErr, curAngSpeed, deltaTime)/100+omegaErr*0.006;
+				double outputR = outputFromSpeed+outputFromPos-updatePID(angErr, curAngSpeed, deltaTime)/100-omegaErr*0.006;
 				
 				updateMotor(outputL, outputR, ControlMode.Velocity);
 				//System.out.println(outputL+" "+outputR);
@@ -310,13 +353,19 @@ public class Drive extends Thread {
 					output = -70;
 				}
 				
+				if ((throttle-lastThrottle) > maxForwardThrottleChange*restrictionMultiplier*(1.0/freq)) {
+					throttle = lastThrottle+maxForwardThrottleChange*restrictionMultiplier*(1.0/freq);
+				} else if ((lastThrottle-throttle) > maxReverseThrottleChange*restrictionMultiplier*(1.0/freq)) {
+					throttle = lastThrottle-maxReverseThrottleChange*restrictionMultiplier*(1.0/freq);
+				}
+				lastThrottle = throttle;
 				updateMotor(throttle+output/100, throttle-output/100, ControlMode.Velocity);
 			}
 		}
 	}
 	
 	public double[] getAllSensorInfo() {
-		double[] infoList = {imu.getAngleZ(), imu.getRate(), getCurPos(), getCurSpeed()};
+		double[] infoList = {imu.getAngleZ(), imu.getRate(), getCurPos(), getCurSpeed(), throttle, x, y};
 		return infoList;
 	}
 }

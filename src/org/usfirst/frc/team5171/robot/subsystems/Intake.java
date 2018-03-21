@@ -27,13 +27,12 @@ public class Intake extends Thread {
 	}
 	
 	public void updateSpeed(double[] _speed) {
-		if (_speed[0] >= 0) {
+		if (_speed[0] > 0) {
 			speed[0] = _speed[0];
-			
 		} else {
 			speed[0] = _speed[0]/2;
 		}
-		if (_speed[1] >= 0) {
+		if (_speed[1] > 0) {
 			speed[1] = _speed[1]/2;
 		} else {
 			speed[1] = _speed[1];
@@ -61,7 +60,7 @@ public class Intake extends Thread {
 			
 			if (newCommand) {
 				newCommand = false;
-				updateSpeed(new double[]{-spitOutDist, -spitOutDist});
+				updateSpeed(new double[]{spitOutDist, -spitOutDist});
 				try {
 					Thread.sleep(500);
 				} catch (InterruptedException e) {

@@ -20,9 +20,10 @@ public class Macro {
 	public static final int LB = 4;
 	public static final int RB = 5;
 	
-	public static final int INTAKE_POS_BUTTON = 0;
-	public static final int SWITCH_POS_BUTTON = 0;
-	public static final int SCALE_POS_BUTTON = 0;
+	public static final int INTAKE_POS_BUTTON = 1;
+	public static final int SWITCH_POS_BUTTON = 2;
+	public static final int SCALE_POS_BUTTON = 3;
+	public static final int LIFT_RECENTER = 4;
 	public static final int INTAKE_BUTTON = 0;
 	public static final int SPIT_OUT_BUTTON = 0;
 	
@@ -33,7 +34,7 @@ public class Macro {
 	public static final double constkI = 2;
 	public static final double constkD = 0.24;
 	
-	public static final double joystickMultiplier = 3.2; //Robot rotation per time unit.
+	public static final double joystickMultiplier = 3.2; //Robot rotation per time unit. //change back to 3.2
 	
 	public static final double wheelMultiplier = 4096;
 	
@@ -41,11 +42,18 @@ public class Macro {
 	public static final double wheelCircumfrence = 0.47878; // meters
 	public static final double revPer100ms = 1.0/wheelCircumfrence/10;
 	public static final double maxRevPer100ms = maxSpeed/wheelCircumfrence/10; // revs
+	public static final double maxForwardThrottleChange = 4.3; //units/s
+	public static final double maxReverseThrottleChange = 6.8; //units/s
 	
 	public static final double liftHeightPerRev = 12.55; // cm/rev
-	public static final double liftkP = 0.1;
+	public static final double liftkP = 0.08;
 	public static final double liftkI = 0.0;
-	public static final double liftkD = 0.0;
+	public static final double liftkD = 0.0002;
+	public static final double protectedLiftHeight = 140;
+	public static final double liftHome = 0.1;
+	public static final double liftSwitchHeight = 105;
+	public static final double liftMaxHeight = 233.5;
+	public static final double secondStageLanding = 134;
 	
 	public static final double recordTime = 30;
 	
