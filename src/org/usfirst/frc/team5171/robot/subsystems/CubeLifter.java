@@ -54,7 +54,7 @@ public class CubeLifter extends Thread {
 		return liftSwitch.get();
 	}
 	
-	private double getCurPos() {
+	public double getCurPos() {
 		return motor.getSelectedSensorPosition(0)/wheelMultiplier*liftHeightPerRev;
 	}
 	
@@ -76,6 +76,7 @@ public class CubeLifter extends Thread {
 	public void liftRecenter() {
 		recenterComplete = false;
 	}
+	
 	
 	public void updatePosition(double position) {
 		curPos = getCurPos();
