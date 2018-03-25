@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class CubeLifter extends Thread {
 	int port;
@@ -118,7 +119,7 @@ public class CubeLifter extends Thread {
 	
 	public boolean zeroSensor() {
 		motor.setSelectedSensorPosition(0, 0, 10);
-		
+		SmartDashboard.putBoolean("DB/LED3", true);
 		try {
 			Thread.sleep(20);
 		} catch (InterruptedException e) {
@@ -190,6 +191,7 @@ public class CubeLifter extends Thread {
 					}
 					zeroSensor();
 				} else {
+					SmartDashboard.putBoolean("DB/LED3", false);
 					updateSpeed(output);
 				}
 			} else {

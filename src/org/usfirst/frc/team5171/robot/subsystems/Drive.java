@@ -36,6 +36,7 @@ public class Drive extends Thread {
 	DriverStation station = DriverStation.getInstance();
 	
 	boolean isFollowMode = false;
+	boolean isRecording = false;
 	
 	public Drive(int _left[], int _right[], double _freq) {
 		leftMotorNum = _left;
@@ -99,14 +100,10 @@ public class Drive extends Thread {
 	private void updateMotor(double leftOutput, double rightOutput, ControlMode mode) {
 		SmartDashboard.putString(SDLMotor, ""+leftOutput);
 		SmartDashboard.putString(SDRMotor, ""+rightOutput);
-		if (mode == ControlMode.Velocity) {
-			motor[0].set(mode, leftOutput*maxRevPer100ms*wheelMultiplier);
-			motor[1].set(ControlMode.Follower, motor[0].getDeviceID());
-			motor[2].set(mode, rightOutput*maxRevPer100ms*wheelMultiplier);
-			motor[3].set(ControlMode.Follower, motor[2].getDeviceID());
-		} else if (mode == ControlMode.PercentOutput) {
-			
-		}
+		motor[0].set(mode, leftOutput*maxRevPer100ms*wheelMultiplier);
+		motor[1].set(ControlMode.Follower, motor[0].getDeviceID());
+		motor[2].set(mode, rightOutput*maxRevPer100ms*wheelMultiplier);
+		motor[3].set(ControlMode.Follower, motor[2].getDeviceID());
 	}
 	
 	public void updateVelocity(double _speed, double _turn) {
@@ -256,6 +253,10 @@ public class Drive extends Thread {
 		restrictionMultiplier = 1;
 	}
 	
+	public void setRecordingStat(boolean value) {
+		isRecording = value;
+	}
+	
 	public void run() {
 		curAng = imu.getAngleZ();
 		curPos = getCurPos();
@@ -322,7 +323,7 @@ public class Drive extends Thread {
 				//outputFromOmega = 0;
 				
 				double angErr = desAng-curAng;
-				//angErr += angleCorrection;
+				angErr += angleCorrection;
 				//double kP = Double.parseDouble(SmartDashboard.getString(SDkP, ""));
 				//double outputFromAng = angErr*0.016;
 				//0.0005
@@ -359,6 +360,11 @@ public class Drive extends Thread {
 					throttle = lastThrottle-maxReverseThrottleChange*restrictionMultiplier*(1.0/freq);
 				}
 				lastThrottle = throttle;
+				
+				if (isRecording) {
+					updateMotor(0, 0, ControlMode.PercentOutput);
+					continue;
+				}
 				updateMotor(throttle+output/100, throttle-output/100, ControlMode.Velocity);
 			}
 		}

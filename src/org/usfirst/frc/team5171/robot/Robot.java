@@ -54,12 +54,11 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void robotInit() {
 		oi = new OI();
-		priorityChooser.addDefault("Switch First", switchFirst);
-		priorityChooser.addObject("Scale First", scaleFirst);
+		priorityChooser.addDefault("Switch", switchFirst);
+		priorityChooser.addObject("Scale", scaleFirst);
 		
 		positionChooser.addDefault("Left Start", leftStart);
 		positionChooser.addObject("Middle Start", middleStart);
-		positionChooser.addObject("Middle Wait", middleWait);
 		positionChooser.addObject("Right Start", rightStart);
 
 		SmartDashboard.putData("Priority Chooser", priorityChooser);
@@ -67,12 +66,10 @@ public class Robot extends IterativeRobot {
 		
 		modes[0] = new AutoTest(drive, lifter, intake, 100);
 		/*modes[1] = new (, 100);
-		modes[1] = new (, 100);
-		modes[1] = new (, 100);
-		modes[1] = new (, 100);
-		modes[1] = new (, 100);
-		modes[1] = new (, 100);
-		modes[1] = new (, 100);*/ //initialize all 8 auto modes here
+		modes[3] = new (, 100);
+		modes[4] = new (, 100);
+		modes[5] = new (, 100);
+		modes[6] = new (, 100);*/ //initialize all 6 auto modes here
 
 		intake.start();
 		lifter.start(); //start both intake and lift service at robot init
@@ -115,21 +112,17 @@ public class Robot extends IterativeRobot {
 				autoMode = modes[0];
 			case middleStart:
 				autoMode = modes[1];
-			case middleWait:
-				autoMode = modes[2];
 			case rightStart:
-				autoMode = modes[3];
+				autoMode = modes[2];
 			}
 		} else if (priority == scaleFirst) {
 			switch (position) {
 			case leftStart:
-				autoMode = modes[4];
+				autoMode = modes[3];
 			case middleStart:
-				autoMode = modes[5];
-			case middleWait:
-				autoMode = modes[6];
+				autoMode = modes[4];
 			case rightStart:
-				autoMode = modes[7];
+				autoMode = modes[6];
 			}
 		} //get the desired auto mode
 
@@ -149,6 +142,7 @@ public class Robot extends IterativeRobot {
 
 		// schedule the autonomous command (example)
 		autoMode = new AutoTest(drive, lifter, intake, 100);
+		System.out.println(autoMode);
 		if (autoMode != null) {
 			System.out.println("called");
 			autoMode.initialize(platePos);
@@ -201,8 +195,12 @@ public class Robot extends IterativeRobot {
 			String file = SmartDashboard.getString(SDkP, ""); //recording file name
 			recorder = new Record(file, drive, lifter, intake, 60); //initialize recorder with drive, lift, and intake infomation at 60Hz
 			recordingThread = new Thread(recorder);
-			recordingThread.start();
-		} //start recording if the smartdashboard button 0 is pressed
+			recordingThread.start(); //start recording if the smartdashboard button 0 is pressed
+		} else if (recordingThread.isAlive()) { 
+			drive.setRecordingStat(true);
+		} else {
+			drive.setRecordingStat(false);
+		}
 		
 		lifter.updateDisplacement(controlStick.getAxis(LEFT_UP) - controlStick.getAxis(RIGHT_UP));
 		//lifter.updateSpeed(controlStick.get(LEFT_UP)-controlStick.get(RIGHT_UP));
@@ -227,6 +225,8 @@ public class Robot extends IterativeRobot {
 		intake.updateSpeed(intakeSpeed);
 		
 		climber.updateSpeed(controlStick.getAxis(THROTTLE));
+		
+		SmartDashboard.putString(SDkI, ""+drive.getCurSpeed());
 	}
 
 	/**

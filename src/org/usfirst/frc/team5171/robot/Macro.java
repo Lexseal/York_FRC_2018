@@ -34,7 +34,7 @@ public class Macro {
 	public static final double constkI = 2;
 	public static final double constkD = 0.24;
 	
-	public static final double joystickMultiplier = 3.2; //Robot rotation per time unit. //change back to 3.2
+	public static final double joystickMultiplier = 3; //Robot rotation per time unit. //change back to 3.2
 	
 	public static final double wheelMultiplier = 4096;
 	
@@ -45,7 +45,7 @@ public class Macro {
 	public static final double maxForwardThrottleChange = 4.3; //units/s
 	public static final double maxReverseThrottleChange = 6.8; //units/s
 	
-	public static final double liftHeightPerRev = 12.55; // cm/rev
+	public static final double liftHeightPerRev = 12.545; // cm/rev
 	public static final double liftkP = 0.08;
 	public static final double liftkI = 0.0;
 	public static final double liftkD = 0.0002;
