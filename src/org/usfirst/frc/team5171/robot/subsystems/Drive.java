@@ -32,6 +32,7 @@ public class Drive extends Thread {
 	double lastTurn = 0; //register the turn command at last cycle to determine if breaking is needed this cycle
 	
 	double restrictionMultiplier = 1;
+	double liftHeight = 0;
 	
 	DriverStation station = DriverStation.getInstance();
 	
@@ -353,12 +354,13 @@ public class Drive extends Thread {
 				} else if (output < -70) {
 					output = -70;
 				}
-				
-				if ((throttle-lastThrottle) > maxForwardThrottleChange*restrictionMultiplier*(1.0/freq)) {
-					throttle = lastThrottle+maxForwardThrottleChange*restrictionMultiplier*(1.0/freq);
-				} else if ((lastThrottle-throttle) > maxReverseThrottleChange*restrictionMultiplier*(1.0/freq)) {
-					throttle = lastThrottle-maxReverseThrottleChange*restrictionMultiplier*(1.0/freq);
+				liftHeight = Integer.parseInt(SmartDashboard.getString(SDLMotor, "1"));
+				if ((throttle-lastThrottle) > maxForwardThrottleChange*(1.0/liftHeight)*restrictionMultiplier*(1.0/freq)) {
+					throttle = lastThrottle+maxForwardThrottleChange*(1.0/liftHeight)*restrictionMultiplier*(1.0/freq);
+				} else if ((lastThrottle-throttle) > maxReverseThrottleChange*(1.0/liftHeight)*restrictionMultiplier*(1.0/freq)) {
+					throttle = lastThrottle-maxReverseThrottleChange*(1.0/liftHeight)*restrictionMultiplier*(1.0/freq);
 				}
+				System.out.println("accel X:"+imu.getAccelX()+" Y:"+imu.getAccelY()+" Z:"+imu.getAccelZ());
 				lastThrottle = throttle;
 				
 				if (isRecording) {
@@ -373,5 +375,10 @@ public class Drive extends Thread {
 	public double[] getAllSensorInfo() {
 		double[] infoList = {imu.getAngleZ(), imu.getRate(), getCurPos(), getCurSpeed(), throttle, x, y};
 		return infoList;
+	}
+
+	public void setLiftHeight(double curPos2) {
+		liftHeight = curPos2; 
+		
 	}
 }

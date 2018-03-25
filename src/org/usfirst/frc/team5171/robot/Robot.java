@@ -5,6 +5,8 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.PWM;
 
 import static org.usfirst.frc.team5171.robot.Macro.*;
 
@@ -21,8 +23,10 @@ import org.usfirst.frc.team5171.robot.subsystems.*;
 public class Robot extends IterativeRobot {
 	public static OI oi;
 	
+	PWM pwm = new PWM(0);
 	AutoMode[] modes = new AutoMode[8];
 	AutoMode autoMode;
+	
 	SendableChooser<String> priorityChooser = new SendableChooser<String>();
 	SendableChooser<String> positionChooser = new SendableChooser<String>();
 
@@ -73,7 +77,7 @@ public class Robot extends IterativeRobot {
 
 		intake.start();
 		lifter.start(); //start both intake and lift service at robot init
-		//stream.start();
+		//stream.start(); 
 	}
 
 	/**
@@ -83,11 +87,20 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void disabledInit() {
+//		Alliance color = DriverStation.getInstance().getAlliance();
+//		if(color == DriverStation.Alliance.Blue){
+//			pwm.setSpeed(0.3);
+//		} else {
+//			pwm.setSpeed(0.6);
+//		}
+
 	}
 
 	@Override
 	public void disabledPeriodic() {
 		Scheduler.getInstance().run();
+//		pwm.setSpeed(Double.parseDouble(SmartDashboard.getString("DB/String 7", "0")));
+//		System.out.println(pwm.getRaw());
 	}
 
 	/**
@@ -196,7 +209,7 @@ public class Robot extends IterativeRobot {
 			recorder = new Record(file, drive, lifter, intake, 60); //initialize recorder with drive, lift, and intake infomation at 60Hz
 			recordingThread = new Thread(recorder);
 			recordingThread.start(); //start recording if the smartdashboard button 0 is pressed
-		} else if (recordingThread.isAlive()) { 
+		} else if (recordingThread.isAlive()) {   
 			drive.setRecordingStat(true);
 		} else {
 			drive.setRecordingStat(false);
@@ -215,14 +228,23 @@ public class Robot extends IterativeRobot {
 		}
 		
 		if (lifter.protectionMode()) {
-			drive.restrictedAcc();
+			drive.restrictedAcc(); 
 			drive.normalAcc();
 		}
+		//drive.setLiftHeight(lifter.getCurPos());
 		drive.updateVelocity(-driveStick.getAxis(THROTTLE), driveStick.getAxis(TURN));
 
 		double[] intakeSpeed = { -driveStick.getAxis(LEFT_UP) - controlStick.getAxis(LEFT_X),
 				driveStick.getAxis(RIGHT_UP) - controlStick.getAxis(TURN) };
 		intake.updateSpeed(intakeSpeed);
+		if (intakeSpeed[0]-intakeSpeed[1] > 0.1 ) {
+			pwm.setSpeed(-0.3);
+		} else if(intakeSpeed[0]-intakeSpeed[1] < -0.1) {
+			pwm.setSpeed(-0.6);
+		} else {
+			pwm.setSpeed(0.0);
+		}
+		System.out.println(pwm.getRaw());
 		
 		climber.updateSpeed(controlStick.getAxis(THROTTLE));
 		
