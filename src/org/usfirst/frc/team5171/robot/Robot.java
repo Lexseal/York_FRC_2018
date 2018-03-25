@@ -80,7 +80,7 @@ public class Robot extends IterativeRobot {
 
 		intake.start();
 		lifter.start(); //start both intake and lift service at robot init
-		//stream.start();
+		//stream.start(); 
 	}
 
 	/**
@@ -90,20 +90,20 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void disabledInit() {
-		Alliance color = DriverStation.getInstance().getAlliance();
-		if(color == DriverStation.Alliance.Blue){
-			pwm.setSpeed(0.3);
-		} else {
-			pwm.setSpeed(0.6);
-		}
+//		Alliance color = DriverStation.getInstance().getAlliance();
+//		if(color == DriverStation.Alliance.Blue){
+//			pwm.setSpeed(0.3);
+//		} else {
+//			pwm.setSpeed(0.6);
+//		}
 
 	}
 
 	@Override
 	public void disabledPeriodic() {
 		Scheduler.getInstance().run();
-		pwm.setSpeed(Double.parseDouble(SmartDashboard.getString("DB/String 7", "0")));
-		System.out.println(pwm.getRaw());
+//		pwm.setSpeed(Double.parseDouble(SmartDashboard.getString("DB/String 7", "0")));
+//		System.out.println(pwm.getRaw());
 	}
 
 	/**
@@ -239,13 +239,14 @@ public class Robot extends IterativeRobot {
 		double[] intakeSpeed = { -driveStick.getAxis(LEFT_UP) - controlStick.getAxis(LEFT_X),
 				driveStick.getAxis(RIGHT_UP) - controlStick.getAxis(TURN) };
 		intake.updateSpeed(intakeSpeed);
-		if (intakeSpeed[0]-intakeSpeed[1] > 1.0 ) {
-			pwm.setSpeed(-1.0);
-		} else if(intakeSpeed[0]-intakeSpeed[1] < -1.0) {
+		if (intakeSpeed[0]-intakeSpeed[1] > 0.1 ) {
+			pwm.setSpeed(-0.3);
+		} else if(intakeSpeed[0]-intakeSpeed[1] < -0.1) {
 			pwm.setSpeed(-0.6);
 		} else {
-			pwm.setSpeed(-0.3);
+			pwm.setSpeed(0.0);
 		}
+		System.out.println(pwm.getRaw());
 		
 		climber.updateSpeed(controlStick.getAxis(THROTTLE));
 	}
