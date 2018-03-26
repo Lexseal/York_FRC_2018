@@ -32,7 +32,7 @@ public class Drive extends Thread {
 	double lastTurn = 0; //register the turn command at last cycle to determine if breaking is needed this cycle
 	
 	double restrictionMultiplier = 1;
-	double liftHeight = 0;
+	double liftHeight = 0; 
 	
 	DriverStation station = DriverStation.getInstance();
 	
@@ -65,7 +65,7 @@ public class Drive extends Thread {
 			
 			motor[i].config_kF(0, 0, 10);
 			motor[i].config_kP(0, 0.24, 10);
-			motor[i].config_kI(0, 0, 10);
+			motor[i].config_kI(0, 0, 10); 
 			motor[i].config_kD(0, 0.005, 10);
 			
 			motor[i].configOpenloopRamp(0.35, 10);
@@ -73,7 +73,7 @@ public class Drive extends Thread {
 		}
 		
 		imu = new ADIS16448_IMU();
-		imu.calibrate(); //Init gyro.
+		imu.calibrate(); //Init gyro. 
 		
 		freq = _freq;
 		
@@ -354,7 +354,8 @@ public class Drive extends Thread {
 				} else if (output < -70) {
 					output = -70;
 				}
-				liftHeight = Integer.parseInt(SmartDashboard.getString(SDLMotor, "1"));
+				liftHeight = 1.0;
+						//Integer.parseInt(SmartDashboard.getString(SDLMotor, "1"));
 				if ((throttle-lastThrottle) > maxForwardThrottleChange*(1.0/liftHeight)*restrictionMultiplier*(1.0/freq)) {
 					throttle = lastThrottle+maxForwardThrottleChange*(1.0/liftHeight)*restrictionMultiplier*(1.0/freq);
 				} else if ((lastThrottle-throttle) > maxReverseThrottleChange*(1.0/liftHeight)*restrictionMultiplier*(1.0/freq)) {

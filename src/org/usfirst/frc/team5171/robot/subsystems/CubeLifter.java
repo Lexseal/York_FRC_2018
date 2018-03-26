@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 //import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import edu.wpi.first.wpilibj.DriverStation;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -20,12 +21,15 @@ public class CubeLifter extends Thread {
 	double I;
 	double testKP = 0, testKI = 0, testKD = 0;
 	boolean recenterComplete = true;
+	DriverStation station;
 	
 	public CubeLifter(int _port, int _switchPin, int _freq) {
 		port = _port;
 		freq = _freq;
 		
 		liftSwitch = new DigitalInput(_switchPin);
+		
+		station = DriverStation.getInstance();
 		
 		motor = new TalonSRX(port);
 		
@@ -205,7 +209,9 @@ public class CubeLifter extends Thread {
 					updateSpeed(-0.2);
 				}
 			}
-			
+						if (!station.isEnabled()) {
+								desPos = curPos;
+							}
 			//System.out.println(desPos+"   "+curPos+"   "+motor.getSelectedSensorPosition(0) + "   " +output);
 		}
 	}
