@@ -17,8 +17,8 @@ public class Macro {
 	public static final int B = 2;
 	public static final int X = 3;
 	public static final int Y = 4;
-	public static final int LB = 4;
-	public static final int RB = 5;
+	public static final int LB = 5;
+	public static final int RB = 6;
 	
 	public static final int INTAKE_POS_BUTTON = 1;
 	public static final int SWITCH_POS_BUTTON = 2;
@@ -50,12 +50,12 @@ public class Macro {
 	public static final double liftkI = 0.0;
 	public static final double liftkD = 0.0002;
 	public static final double protectedLiftHeight = 140;
-	public static final double liftHome = 0.1;
+	public static final double liftHome = 0;
 	public static final double liftSwitchHeight = 105;
-	public static final double liftMaxHeight = 233.5;
+	public static final double liftMaxHeight = 234;
 	public static final double secondStageLanding = 134;
 	
-	public static final double recordTime = 30;
+	public static final double recordTime = 15;
 	
 	public static final String SDcurAng = "DB/String 0";
 	public static final String SDdesAng = "DB/String 1";
@@ -72,6 +72,5 @@ public class Macro {
 	public static final String scaleFirst = "scaleFirst";
 	public static final String leftStart = "L";
 	public static final String middleStart = "M";
-	public static final String middleWait = "MW";
 	public static final String rightStart = "R";
 }

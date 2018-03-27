@@ -2,6 +2,8 @@ package org.usfirst.frc.team5171.robot.commands;
 
 import static org.usfirst.frc.team5171.robot.Macro.recordTime;
 
+import java.util.ArrayList;
+
 import org.usfirst.frc.team5171.robot.subsystems.CubeLifter;
 import org.usfirst.frc.team5171.robot.subsystems.Drive;
 import org.usfirst.frc.team5171.robot.subsystems.Intake;
@@ -10,13 +12,12 @@ import org.usfirst.frc.team5171.robot.subsystems.RecordingReader;
 import edu.wpi.first.wpilibj.DriverStation;
 
 public class AutoMode {
-	//int position = 0;
 	protected Drive drive;
 	protected CubeLifter lifter;
 	protected Intake intake;
 	protected double freq;
 	protected DriverStation station;
-	protected RecordingReader[] reader;
+	protected ArrayList<RecordingReader> reader;
 	protected double startTime;
 
 	protected double getCurTime() {
@@ -33,10 +34,10 @@ public class AutoMode {
 		lifter = _lifter;
 		intake = _intake;
 		station = DriverStation.getInstance();
-		reader = new RecordingReader[0];
+		reader = new ArrayList<RecordingReader>(0);
 	}
 
-	// Called just before this Command runs the first time
+	// Called  before running execute
 	public void initialize(int[] plateAssignment) {
 		System.out.println("initialized");
 		if (!drive.isAlive()) {
@@ -45,13 +46,14 @@ public class AutoMode {
 		drive.zeroSensor();
 	}
 
-	// Called repeatedly when this Command is scheduled to run
+	// Called once
 	public void execute() {
-		System.out.println(reader.length);
-		for (int i = 0; i < reader.length; i++) {
+		System.out.println(reader.size());
+		for (int i = 0; i < reader.size(); i++) {
+			RecordingReader vectors = reader.get(i);
 			startTime = getRunTime();
 			double runTime = getRunTime();
-			reader[i].resetCutoff();
+			vectors.resetCutoff();
 			while (runTime <= recordTime && station.isAutonomous() && station.isEnabled()) {
 				try {
 					Thread.sleep((long)(1000/freq));
@@ -60,7 +62,7 @@ public class AutoMode {
 				}
 
 				runTime = getRunTime();
-				double[] vector = reader[i].getVector(runTime);
+				double[] vector = vectors.getVector(runTime);
 				//System.out.println("");
 				//vector = {runtime, theta, omega1, omega2, s, v, x, y, lift, lIntake, rIntake}
 				double angle = vector[1];
