@@ -1,5 +1,8 @@
 package org.usfirst.frc.team5171.robot.commands;
 import org.usfirst.frc.team5171.robot.subsystems.*;
+import edu.wpi.first.wpilibj.DriverStation;
+
+import static org.usfirst.frc.team5171.robot.Macro.*;
 
 public class AutoTest extends AutoMode {
 	//int position = 0;
@@ -21,7 +24,8 @@ public class AutoTest extends AutoMode {
 	
 	public AutoTest(Drive _drive, CubeLifter _lifter, Intake _intake, double _freq) {
 		super(_drive, _lifter, _intake, _freq);
-		reader.add(new RecordingReader("timeOptimal"));
+		reader = new RecordingReader[1];
+		reader[0] = new RecordingReader("timeOptimal");
 		/*reader[0] = new RecordingReader("R_RSwitchToHub");
 		reader[1] = new RecordingReader("R_RScaleToHub");
 		reader[2] = new RecordingReader("R_PickUpCube");
@@ -36,6 +40,7 @@ public class AutoTest extends AutoMode {
 
 	// Called just before this Command runs the first time
 	public void initialize(int[] plateAssignment) {
+		
 		if (!drive.isAlive()) {
 			drive.start();
 		}
@@ -43,7 +48,7 @@ public class AutoTest extends AutoMode {
 	}
 
 	// Called repeatedly when this Command is scheduled to run
-	/*public void execute() {
+	public void execute() {
 		System.out.println(reader.length);
 		for (int i = 0; i < reader.length; i++) {
 			startTime = getRunTime();
@@ -78,7 +83,7 @@ public class AutoTest extends AutoMode {
 				break;
 			}
 		}
-	}*/
+	}
 
 	// Make this return true when this Command no longer needs to run execute()
 //	public boolean isFinished() {

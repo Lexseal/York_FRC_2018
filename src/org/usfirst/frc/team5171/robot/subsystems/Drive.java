@@ -19,25 +19,23 @@ public class Drive extends Thread {
 	/*In a 4-motor config, 0 and 1 are left motors while 2 and 3 are right motors.
 	  In a 6-motor config, 0, 1, and 2 are left while 3, 4, and 5 are right.*/
 	ADIS16448_IMU imu;
-	DriverStation station = DriverStation.getInstance();
-	
 	double curAng, desAng, curAngSpeed, desAngSpeed;
 	double curPos, desPos, curSpeed, desSpeed;
 	double throttle = 0, lastThrottle = 0;
 	double desX, x, desY, y; //robot position
 	double lastTime, deltaTime;
 	double freq;
+	
 	double testKP = 0, testKI = 0, testKD = 0; //used when test mode enabled
 	double I = 0; //integral term
+	
 	double lastTurn = 0; //register the turn command at last cycle to determine if breaking is needed this cycle
+	
 	double restrictionMultiplier = 1;
-<<<<<<< HEAD
 	double liftHeight = 0; 
 	
 	DriverStation station = DriverStation.getInstance();
 	
-=======
->>>>>>> Completed-Auto
 	boolean isFollowMode = false;
 	boolean isRecording = false;
 	
@@ -78,11 +76,9 @@ public class Drive extends Thread {
 		imu.calibrate(); //Init gyro. 
 		
 		freq = _freq;
-	}
-	
-	public double getCurSpeed() {
-		double encoderReadOut = (motor[0].getSelectedSensorVelocity(0)+motor[2].getSelectedSensorVelocity(0))/2;
-		return (encoderReadOut/wheelMultiplier*wheelCircumfrence)*10;
+		
+		x = 0;
+		y = 0;
 	}
 	
 	private double getCurPos() {
@@ -94,6 +90,12 @@ public class Drive extends Thread {
 		double dc = curSpeed*deltaTime/1000;
 		x += Math.sin(curAng*3.1415926/180)*dc;
 		y += Math.cos(curAng*3.1415926/180)*dc;
+		//System.out.println(x+", "+y);
+	}
+	
+	public double getCurSpeed() {
+		double encoderReadOut = (motor[0].getSelectedSensorVelocity(0)+motor[2].getSelectedSensorVelocity(0))/2;
+		return (encoderReadOut/wheelMultiplier*wheelCircumfrence)*10;
 	}
 	
 	private void updateMotor(double leftOutput, double rightOutput, ControlMode mode) {
@@ -257,10 +259,12 @@ public class Drive extends Thread {
 	}
 	
 	public void run() {
+		curAng = imu.getAngleZ();
+		curPos = getCurPos();
+		
 		desAng = curAng;
 		
-		x = 0;
-		y = 0;
+		throttle = 0;
 		
 		lastTime = System.currentTimeMillis(); //Init lastTime for integral calculation.
 		
@@ -285,7 +289,7 @@ public class Drive extends Thread {
 			
 			updateCoordinate();
 			
-			if (isFollowMode && station.isAutonomous()) {
+			if (isFollowMode) {
 				double speedErr = desSpeed-curSpeed;
 				double outputFromSpeed = desSpeed*0.52+speedErr*0.20;
 				//0.58 0.4
@@ -312,7 +316,7 @@ public class Drive extends Thread {
 				if (getCurSpeed() < 0) {
 					angleCorrection *= -1;
 				}
-				//System.out.println(angleCorrection);
+				System.out.println(angleCorrection);
 				
 				double omegaErr = desAngSpeed-curAngSpeed;
 				//double outputFromOmega = desAngSpeed*0.0052+omegaErr*0.0016;
@@ -325,7 +329,7 @@ public class Drive extends Thread {
 				//double outputFromAng = angErr*0.016;
 				//0.0005
 				//outputFromAng = 0;
-				//System.out.println(omegaErr+" "+angErr);
+				System.out.println(omegaErr+" "+angErr);
 				
 				//double outputL = outputFromSpeed+outputFromPos+outputFromAng+outputFromOmega;
 				//double outputR = outputFromSpeed+outputFromPos-outputFromAng-outputFromOmega;
@@ -362,9 +366,9 @@ public class Drive extends Thread {
 				
 				if (isRecording) {
 					updateMotor(0, 0, ControlMode.PercentOutput);
-				} else {
-					updateMotor(throttle+output/100, throttle-output/100, ControlMode.Velocity);
+					continue;
 				}
+				updateMotor(throttle+output/100, throttle-output/100, ControlMode.Velocity);
 			}
 		}
 	}
