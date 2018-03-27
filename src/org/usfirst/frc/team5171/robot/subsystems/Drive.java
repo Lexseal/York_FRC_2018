@@ -30,14 +30,10 @@ public class Drive extends Thread {
 	double testKP = 0, testKI = 0, testKD = 0; //used when test mode enabled
 	double I = 0; //integral term
 	double lastTurn = 0; //register the turn command at last cycle to determine if breaking is needed this cycle
+	double liftRestrictionMultiplier = 0;
 	double restrictionMultiplier = 1;
-<<<<<<< HEAD
+
 	double liftHeight = 0; 
-	
-	DriverStation station = DriverStation.getInstance();
-	
-=======
->>>>>>> Completed-Auto
 	boolean isFollowMode = false;
 	boolean isRecording = false;
 	
@@ -120,7 +116,7 @@ public class Drive extends Thread {
 	
 	public void updateDisplacement(double _angle, double _displacement) {
 		//achieve angle
-		desAng = curAng + _angle;
+		desAng = curAng + _angle; 
 		System.out.println("ang and disp" + _angle +" "+ _displacement + " desiAng " + desAng);
 		double startTime = System.currentTimeMillis();
 		while (Math.abs(desAng-imu.getAngleZ())>1 || (System.currentTimeMillis()-startTime)<1000 || (station.isAutonomous() && station.isEnabled())) {
@@ -357,6 +353,15 @@ public class Drive extends Thread {
 				} else if ((lastThrottle-throttle) > maxReverseThrottleChange*(1.0/liftHeight)*restrictionMultiplier*(1.0/freq)) {
 					throttle = lastThrottle-maxReverseThrottleChange*(1.0/liftHeight)*restrictionMultiplier*(1.0/freq);
 				}
+				
+				if (liftHeight > 0 && Math.abs(throttle) > liftHeight * liftRestrictionMultiplier) {
+					if (throttle > 0) {
+						throttle = throttle - liftHeight * liftRestrictionMultiplier;
+					} else {
+						throttle = throttle + liftHeight * liftRestrictionMultiplier;
+					}
+				}
+				
 				System.out.println("accel X:"+imu.getAccelX()+" Y:"+imu.getAccelY()+" Z:"+imu.getAccelZ());
 				lastThrottle = throttle;
 				

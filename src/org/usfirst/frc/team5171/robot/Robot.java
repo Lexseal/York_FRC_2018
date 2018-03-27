@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PWM;
+import edu.wpi.first.wpilibj.command.Scheduler;
 
 import static org.usfirst.frc.team5171.robot.Macro.*;
 
@@ -22,12 +23,8 @@ import org.usfirst.frc.team5171.robot.subsystems.*;
 public class Robot extends IterativeRobot {
 	public static OI oi;
 	
-<<<<<<< HEAD
 	PWM pwm = new PWM(0);
-	AutoMode[] modes = new AutoMode[8];
-=======
 	AutoMode[] modes = new AutoMode[5];
->>>>>>> Completed-Auto
 	AutoMode autoMode;
 	
 	SendableChooser<String> priorityChooser = new SendableChooser<String>();
@@ -78,13 +75,8 @@ public class Robot extends IterativeRobot {
 		modes[4] = new AutoScaleFromRight(drive, lift, intake, 100); //initialize all 5 auto modes here
 
 		intake.start();
-<<<<<<< HEAD
-		lifter.start(); //start both intake and lift service at robot init
-		//stream.start(); 
-=======
 		lift.start();
 		stream.start(); //start intake, lift, and streaming service
->>>>>>> Completed-Auto
 	}
 
 	@Override
@@ -100,12 +92,9 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void disabledPeriodic() {
-<<<<<<< HEAD
 		Scheduler.getInstance().run();
 //		pwm.setSpeed(Double.parseDouble(SmartDashboard.getString("DB/String 7", "0")));
 //		System.out.println(pwm.getRaw());
-=======
->>>>>>> Completed-Auto
 	}
 
 	@Override
@@ -218,26 +207,17 @@ public class Robot extends IterativeRobot {
 			lift.liftRecenter();
 		}
 		
-<<<<<<< HEAD
-		if (lifter.protectionMode()) {
-			drive.restrictedAcc(); 
-			drive.normalAcc();
-		}
-		//drive.setLiftHeight(lifter.getCurPos());
-		drive.updateVelocity(-driveStick.getAxis(THROTTLE), driveStick.getAxis(TURN));
-=======
 		if (lift.protectionMode()) {
 			drive.restrictedAcc();
 			drive.normalAcc();
 		}
-		
+    drive.setLiftHeight(lift.getCurPos());
 		if (driveStick.getButton(LB) && driveStick.getButton(RB)) {
 			drive.updateVelocity(driveStick.getAxis(THROTTLE), driveStick.getAxis(TURN));
 		} else {
 			drive.updateVelocity(-driveStick.getAxis(THROTTLE), driveStick.getAxis(TURN));
 		}
->>>>>>> Completed-Auto
-
+		
 		double[] intakeSpeed = { -driveStick.getAxis(LEFT_UP) - controlStick.getAxis(LEFT_X),
 				driveStick.getAxis(RIGHT_UP) - controlStick.getAxis(TURN) };
 		intake.updateSpeed(intakeSpeed);
