@@ -8,22 +8,17 @@ import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
 
 public class StreamingServer extends Thread{
-    
-    public StreamingServer() {
-    		
-    }
-
     public void run() {
     	CameraServer server = CameraServer.getInstance();
     	UsbCamera camera = server.startAutomaticCapture();
         camera.setResolution(320, 240);
-        camera.setExposureManual(50);
-        camera.setBrightness(50);
-        camera.setWhiteBalanceManual(3500);
+        //camera.setExposureManual(50);
+        //camera.setBrightness(50);
+        //camera.setWhiteBalanceManual(3500);
         camera.setFPS(30);
         
         CvSink cvSink = server.getVideo();
-        CvSource hsvStream = server.putVideo("stream", 320, 240);
+        CvSource stream = server.putVideo("stream", 320, 240);
         
         Mat img = new Mat();
     	while(!Thread.interrupted()) {
@@ -31,7 +26,7 @@ public class StreamingServer extends Thread{
             if (img.width() == 0) {
             	continue;
             }
-            hsvStream.putFrame(img);
+            stream.putFrame(img);
     	}
     }
 }
