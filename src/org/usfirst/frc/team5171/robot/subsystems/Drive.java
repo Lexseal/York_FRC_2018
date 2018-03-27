@@ -346,21 +346,21 @@ public class Drive extends Thread {
 				} else if (output < -70) {
 					output = -70;
 				}
-				liftHeight = 1.0;
-						//Integer.parseInt(SmartDashboard.getString(SDLMotor, "1"));
-				if ((throttle-lastThrottle) > maxForwardThrottleChange*(1.0/liftHeight)*restrictionMultiplier*(1.0/freq)) {
-					throttle = lastThrottle+maxForwardThrottleChange*(1.0/liftHeight)*restrictionMultiplier*(1.0/freq);
-				} else if ((lastThrottle-throttle) > maxReverseThrottleChange*(1.0/liftHeight)*restrictionMultiplier*(1.0/freq)) {
-					throttle = lastThrottle-maxReverseThrottleChange*(1.0/liftHeight)*restrictionMultiplier*(1.0/freq);
+				//liftRestrictionMultiplier = Integer.parseInt(SmartDashboard.getString(SDLMotor, "1"));
+				
+				if ((throttle-lastThrottle) > (maxForwardThrottleChange*restrictionMultiplier-liftHeight * liftRestrictionMultiplier)*(1.0/freq)) {
+					throttle = lastThrottle+(maxForwardThrottleChange*restrictionMultiplier-liftHeight * liftRestrictionMultiplier)*(1.0/freq);
+				} else if ((lastThrottle-throttle) > (maxReverseThrottleChange*restrictionMultiplier-liftHeight * liftRestrictionMultiplier)*(1.0/freq)) {
+					throttle = lastThrottle-(maxReverseThrottleChange*restrictionMultiplier-liftHeight * liftRestrictionMultiplier)*(1.0/freq);
 				}
 				
-				if (liftHeight > 0 && Math.abs(throttle) > liftHeight * liftRestrictionMultiplier) {
-					if (throttle > 0) {
-						throttle = throttle - liftHeight * liftRestrictionMultiplier;
-					} else {
-						throttle = throttle + liftHeight * liftRestrictionMultiplier;
-					}
-				}
+//				if (liftHeight > 0 && Math.abs(throttle) > liftHeight * liftRestrictionMultiplier) {
+//					if (throttle > 0) {
+//						throttle = throttle - liftHeight * liftRestrictionMultiplier;
+//					} else {
+//						throttle = throttle + liftHeight * liftRestrictionMultiplier;
+//					}
+//				}
 				
 				System.out.println("accel X:"+imu.getAccelX()+" Y:"+imu.getAccelY()+" Z:"+imu.getAccelZ());
 				lastThrottle = throttle;
