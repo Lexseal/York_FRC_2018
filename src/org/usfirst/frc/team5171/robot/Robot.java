@@ -4,6 +4,9 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.PWM;
+import edu.wpi.first.wpilibj.command.Scheduler;
 
 import static org.usfirst.frc.team5171.robot.Macro.*;
 
@@ -217,16 +220,24 @@ public class Robot extends IterativeRobot {
 			drive.restrictedAcc();
 			drive.normalAcc();
 		}
-		
+    drive.setLiftHeight(lift.getCurPos());
 		if (driveStick.getButton(LB) && driveStick.getButton(RB)) {
 			drive.updateVelocity(driveStick.getAxis(THROTTLE), driveStick.getAxis(TURN));
 		} else {
 			drive.updateVelocity(-driveStick.getAxis(THROTTLE), driveStick.getAxis(TURN));
 		}
-
+		
 		double[] intakeSpeed = { -driveStick.getAxis(LEFT_UP) - controlStick.getAxis(LEFT_X),
 				driveStick.getAxis(RIGHT_UP) - controlStick.getAxis(TURN) };
 		intake.updateSpeed(intakeSpeed);
+		if (intakeSpeed[0]-intakeSpeed[1] > 0.1 ) {
+			pwm.setSpeed(-0.3);
+		} else if(intakeSpeed[0]-intakeSpeed[1] < -0.1) {
+			pwm.setSpeed(-0.6);
+		} else {
+			pwm.setSpeed(0.0);
+		}
+		System.out.println(pwm.getRaw());
 		
 		climber.updateSpeed(controlStick.getAxis(THROTTLE));
 	}
