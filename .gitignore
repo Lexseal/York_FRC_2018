@@ -14,9 +14,9 @@ out/
 tmp/
 .settings/
 .loadpath
-.project
+#.project
 /.idea
-.classpath
+#.classpath
 
 # Toast/GradleRIO
 run/
