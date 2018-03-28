@@ -30,6 +30,7 @@ public class Drive extends Thread {
 	double testKP = 0, testKI = 0, testKD = 0; //used when test mode enabled
 	double I = 0; //integral term
 	double lastTurn = 0; //register the turn command at last cycle to determine if breaking is needed this cycle
+	double liftHeight = 0;
 	double liftRestrictionMultiplier = 0;
 	double restrictionMultiplier = 1;
 	boolean isFollowMode = false;
