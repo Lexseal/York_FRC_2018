@@ -1,6 +1,7 @@
 package org.usfirst.frc.team5171.robot;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -42,6 +43,8 @@ public class Robot extends IterativeRobot {
 	Climber climber = new Climber(5);
 
 	StreamingServer stream = new StreamingServer(); //camera streaming
+	
+	PWM pwm = new PWM(0);
 	
 	Record recorder;
 	Thread recordingThread = new Thread();
@@ -227,6 +230,13 @@ public class Robot extends IterativeRobot {
 		double[] intakeSpeed = { -driveStick.getAxis(LEFT_UP) - controlStick.getAxis(LEFT_X),
 				driveStick.getAxis(RIGHT_UP) - controlStick.getAxis(TURN) };
 		intake.updateSpeed(intakeSpeed);
+		if (intakeSpeed[0]-intakeSpeed[1] > 0.1 ) {
+			pwm.setSpeed(-0.3);
+		} else if(intakeSpeed[0]-intakeSpeed[1] < -0.1) {
+			pwm.setSpeed(-0.6);
+		} else {
+			pwm.setSpeed(0.0);
+		}
 		
 		climber.updateSpeed(controlStick.getAxis(THROTTLE));
 	}

@@ -53,7 +53,7 @@ public class Macro {
 	public static final double protectedLiftHeight = 140;
 	public static final double liftHome = 0;
 	public static final double liftSwitchHeight = 105;
-	public static final double liftMaxHeight = 234;
+	public static final double liftMaxHeight = 233;
 	public static final double secondStageLanding = 134;
 	
 	public static final double recordTime = 15;
