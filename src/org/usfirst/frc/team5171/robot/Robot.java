@@ -237,6 +237,12 @@ public class Robot extends IterativeRobot {
 		} else if(intakeSpeed[0]-intakeSpeed[1] < -0.1) {
 			pwm.setSpeed(-0.6);
 		} else {
+//			Alliance color = DriverStation.getInstance().getAlliance();
+//			if(color == DriverStation.Alliance.Blue){
+//				pwm.setSpeed(0.3);
+//			} else {
+//				pwm.setSpeed(0.6);
+//			}
 			pwm.setSpeed(0.0);
 		}
 		System.out.println(pwm.getRaw());
