@@ -23,8 +23,10 @@ import org.usfirst.frc.team5171.robot.subsystems.*;
 public class Robot extends IterativeRobot {
 	public static OI oi;
 	
+	PWM pwm = new PWM(0);
 	AutoMode[] modes = new AutoMode[5];
 	AutoMode autoMode;
+	
 	SendableChooser<String> priorityChooser = new SendableChooser<String>();
 	SendableChooser<String> positionChooser = new SendableChooser<String>();
 
