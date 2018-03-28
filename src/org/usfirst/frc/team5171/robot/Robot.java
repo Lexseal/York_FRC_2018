@@ -131,7 +131,7 @@ public class Robot extends IterativeRobot {
 
 		DriverStation station = DriverStation.getInstance();
 		String platePlacement = station.getGameSpecificMessage();
-		platePlacement = SmartDashboard.getString(SDkD, "");
+		//platePlacement = SmartDashboard.getString(SDkD, "");
 
 		int[] platePos = { 0, 0 };
 		if (platePlacement.length() > 0) {
