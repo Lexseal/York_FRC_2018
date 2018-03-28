@@ -45,10 +45,11 @@ public class Macro {
 	public static final double maxForwardThrottleChange = 4.3; //units/s
 	public static final double maxReverseThrottleChange = 6.8; //units/s
 	
-	public static final double liftHeightPerRev = 12.545; // cm/rev
+	public static final double liftHeightPerRev = 12.543; // cm/rev
 	public static final double liftkP = 0.08;
-	public static final double liftkI = 0.0;
-	public static final double liftkD = 0.0002;
+	public static final double liftkI = 1;
+	public static final double liftkD = 0.00008;
+	public static final double liftMaxSpeed = 2;
 	public static final double protectedLiftHeight = 140;
 	public static final double liftHome = 0;
 	public static final double liftSwitchHeight = 105;

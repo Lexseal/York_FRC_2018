@@ -114,7 +114,7 @@ public class CubeLifter extends Thread {
 	}
 	
 	public void updateDisplacement(double displacement) {
-		desPos = desPos+displacement*1.5;
+		desPos = desPos+displacement*liftMaxSpeed;
 		if (desPos < 0) {
 			desPos = 0;
 		} else if (desPos > liftMaxHeight) {
@@ -150,10 +150,10 @@ public class CubeLifter extends Thread {
 		P = kP * error;
 		
 		I = I + kI * error*deltaTime/1000;
-		if (I > 0.2) {
-			I = 0.2;
-		} else if (I < -0.2) {
-			I = -0.2;
+		if (I > 0.03) {
+			I = 0.03;
+		} else if (I < -0.03) {
+			I = -0.03;
 		}
 		
 		D = (-kD) * speed;

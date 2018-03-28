@@ -19,7 +19,12 @@ public class AutoMode {
 	protected DriverStation station;
 	protected ArrayList<RecordingReader> reader;
 	protected double startTime;
+	protected boolean fresh = true;
 
+	public boolean isFresh() {
+		return fresh;
+	}
+	
 	protected double getCurTime() {
 		return System.currentTimeMillis()/1000.0;
 	}
@@ -88,6 +93,7 @@ public class AutoMode {
 	// Make this return true when this Command no longer needs to run execute()
 	public boolean isFinished() {
 		drive.followFinished();
+		fresh = false;
 		return true;
 	}
 
