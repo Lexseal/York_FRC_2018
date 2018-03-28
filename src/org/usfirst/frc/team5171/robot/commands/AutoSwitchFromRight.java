@@ -15,18 +15,23 @@ public class AutoSwitchFromRight extends AutoMode {
 	}
 
 	public void initialize(int[] plateAssignment) {
+		System.out.println("switchFromRight");
+		
 		if (!drive.isAlive()) {
 			drive.start();
 		}
 		drive.zeroSensor();
 		
-		if (plateAssignment[0] == -1) { //If switch on the left, remove right auto.
+		if (plateAssignment[0] == -1) { //If scale on the left, remove right auto.
 			reader.remove(1);
-		} else if (plateAssignment[0] == 1) { //If switch on the right, remove left auto.
+			System.out.println("rightAutoRemoved");
+		} else if (plateAssignment[0] == 1) { //If scale on the right, remove left auto.
 			reader.remove(0);
+			System.out.println("leftAutoRemoved");
 		} else { //If info inconclusive, remove both.
 			reader.remove(0);
-			reader.remove(1);
+			reader.remove(0);
+			System.out.println("bothAutoRemoved");
 		}
 	}
 }

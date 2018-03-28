@@ -322,8 +322,8 @@ public class Drive extends Thread {
 				
 				//double outputL = outputFromSpeed+outputFromPos+outputFromAng+outputFromOmega;
 				//double outputR = outputFromSpeed+outputFromPos-outputFromAng-outputFromOmega;
-				double outputL = outputFromSpeed+outputFromPos+updatePID(angErr, curAngSpeed, deltaTime)/100+omegaErr*0.006;
-				double outputR = outputFromSpeed+outputFromPos-updatePID(angErr, curAngSpeed, deltaTime)/100-omegaErr*0.006;
+				double outputL = outputFromSpeed+outputFromPos+updatePID(angErr, curAngSpeed, deltaTime)/100+omegaErr*0.003;
+				double outputR = outputFromSpeed+outputFromPos-updatePID(angErr, curAngSpeed, deltaTime)/100-omegaErr*0.003;
 				
 				updateMotor(outputL, outputR, ControlMode.Velocity);
 				//System.out.println(outputL+" "+outputR);

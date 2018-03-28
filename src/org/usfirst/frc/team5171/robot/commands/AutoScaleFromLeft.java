@@ -15,6 +15,8 @@ public class AutoScaleFromLeft extends AutoMode {
 	}
 
 	public void initialize(int[] plateAssignment) {
+		System.out.println("scaleFromLeft");
+		
 		if (!drive.isAlive()) {
 			drive.start();
 		}
@@ -22,11 +24,14 @@ public class AutoScaleFromLeft extends AutoMode {
 		
 		if (plateAssignment[1] == -1) { //If scale on the left, remove right auto.
 			reader.remove(1);
+			System.out.println("rightAutoRemoved");
 		} else if (plateAssignment[1] == 1) { //If scale on the right, remove left auto.
 			reader.remove(0);
+			System.out.println("leftAutoRemoved");
 		} else { //If info inconclusive, remove both.
 			reader.remove(0);
-			reader.remove(1);
+			reader.remove(0);
+			System.out.println("bothAutoRemoved");
 		}
 	}
 }

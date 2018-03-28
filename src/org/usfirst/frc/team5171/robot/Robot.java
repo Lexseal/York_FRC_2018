@@ -76,6 +76,21 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void disabledInit() {
+		if (!modes[0].isFresh()) {
+			modes[0] = new AutoSwitchFromLeft(drive, lift, intake, 100);
+		}
+		if (!modes[1].isFresh()) {
+			modes[1] = new AutoSwitchFromMiddle(drive, lift, intake, 100);
+		}
+		if (!modes[2].isFresh()) {
+			modes[2] = new AutoSwitchFromRight(drive, lift, intake, 100);
+		}
+		if (!modes[3].isFresh()) {
+			modes[3] = new AutoScaleFromLeft(drive, lift, intake, 100);
+		}
+		if (!modes[4].isFresh()) {
+			modes[4] = new AutoScaleFromRight(drive, lift, intake, 100);
+		}
 	}
 
 	@Override
@@ -86,40 +101,46 @@ public class Robot extends IterativeRobot {
 	public void autonomousInit() {
 		String priority = priorityChooser.getSelected();
 		String position = positionChooser.getSelected();
-
+		
+		System.out.println(position);
 		if (priority == switchFirst) {
-			switch (position) {
-			case leftStart:
+			if (position == leftStart) {
 				autoMode = modes[0];
-			case middleStart:
+				System.out.println("mode0");
+			} else if (position == middleStart) {
 				autoMode = modes[1];
-			case rightStart:
+				System.out.println("mode1");
+			} else if (position == rightStart) {
 				autoMode = modes[2];
+				System.out.println("mode2");
 			}
 		} else if (priority == scaleFirst) {
-			switch (position) {
-			case leftStart:
+			if (position == leftStart) {
 				autoMode = modes[3];
-			case rightStart:
+				System.out.println("mode3");
+			} else if (position == rightStart) {
 				autoMode = modes[4];
+				System.out.println("mode4");
 			}
 		} //get the desired auto mode
 
 		DriverStation station = DriverStation.getInstance();
 		String platePlacement = station.getGameSpecificMessage();
+		platePlacement = SmartDashboard.getString(SDkD, "");
 
 		int[] platePos = { 0, 0 };
 		if (platePlacement.length() > 0) {
 			for (int i = 0; i < 2; i++) {
 				if (platePlacement.charAt(i) == 'L') {
 					platePos[i] = -1;
-				} else {
+				} else if (platePlacement.charAt(i) == 'R') {
 					platePos[i] = 1;
 				}
 			}
 		} //get the position of plates. {1, -1} means the switch on the right but the scale is on the left
-
-		if (autoMode != null) {
+		
+		System.out.println(platePos[0] +" "+ platePos[1]);
+		if (autoMode != null && autoMode.isFresh()) {
 			autoMode.initialize(platePos);
 			autoMode.execute();
 			autoMode.isFinished();
